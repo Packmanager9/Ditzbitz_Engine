@@ -373,10 +373,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     class Polygon {
-        constructor(x, y, size, color, sides = 3) {
+        constructor(x, y, size, color, sides = 3, angle = 0) {
             this.center = new Circle(x, y, size - (size * .293), "transparent")
             this.nodes = []
-            this.angle = 0
+            this.angle = angle
             this.size = size
             this.color = color
             this.angleIncrement = (Math.PI * 2) / sides
