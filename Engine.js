@@ -1,3 +1,4 @@
+
 window.addEventListener('DOMContentLoaded', (event) => {
 
 
@@ -5,38 +6,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let canvas_context
 
     let keysPressed = {}
-    document.addEventListener('keydown', (event) => {
-        keysPressed[event.key] = true;
-    });
-    document.addEventListener('keyup', (event) => {
-        delete keysPressed[event.key];
-    });
-
-    let flex = tutorial_canvas.getBoundingClientRect();
+    let flex //= canvas.getBoundingClientRect();
     let tip = {}
     let xs
     let ys
-    window.addEventListener('mousedown', e => {
-        flex = tutorial_canvas.getBoundingClientRect();
-        xs = e.clientX - flex.left;
-        ys = e.clientY - flex.top;
-        tip.x = xs
-        tip.y = ys
-        tip.body = tip
-        // example usage: if(squarecircle(squareOnScreen, tip)){ do stuff }
-        window.addEventListener('mousemove', continued_stimuli);
-    });
-    window.addEventListener('mouseup', e => {
-        window.removeEventListener("mousemove", continued_stimuli);
-    })
-    function continued_stimuli(e) {
-        flex = tutorial_canvas.getBoundingClientRect();
-        xs = e.clientX - flex.left;
-        ys = e.clientY - flex.top;
-        tip.x = xs
-        tip.y = ys
-        tip.body = tip
-    }
 
 
 
@@ -415,7 +388,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
         isPointInside(point) { // rough approximation
-            if(this.sides <= 2){
+            if (this.sides <= 2) {
                 return false
             }
             this.areaY = point.y - this.center.y
@@ -596,21 +569,84 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 
 
-    window.setInterval(function () {
-        canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
-
-    }, 17)
 
 
-
-    function setUp(canvas_pass, style) {
+    function setUp(canvas_pass, style) {E
 
         canvas = canvas_pass
         canvas_context = canvas.getContext('2d');
 
         canvas.style.background = style
 
+        window.setInterval(function () {
+            canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
+            main()
+        }, 17)
+
+        document.addEventListener('keydown', (event) => {
+            keysPressed[event.key] = true;
+        });
+        document.addEventListener('keyup', (event) => {
+            delete keysPressed[event.key];
+        });
+
+
+
+        window.addEventListener('mousedown', e => {
+            flex = canvas.getBoundingClientRect();
+            xs = e.clientX - flex.left;
+            ys = e.clientY - flex.top;
+            tip.x = xs
+            tip.y = ys
+            tip.body = tip
+            // example usage: if(squarecircle(squareOnScreen, tip)){ do stuff }
+            window.addEventListener('mousemove', continued_stimuli);
+        });
+        window.addEventListener('mouseup', e => {
+            window.removeEventListener("mousemove", continued_stimuli);
+        })
+        function continued_stimuli(e) {
+            flex = canvas.getBoundingClientRect();
+            xs = e.clientX - flex.left;
+            ys = e.clientY - flex.top;
+            tip.x = xs
+            tip.y = ys
+            tip.body = tip
+        }
     }
+
+
+
+
+    // random color that will be visible on  black background
+    function getRandomLightColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[(Math.floor(Math.random() * 12) + 4)];
+        }
+        return color;
+    }
+    // random color
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[(Math.floor(Math.random() * 16) + 0)];
+        }
+        return color;
+    }
+    // color that will be visible on a black background
+    function getRandomDarkColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[(Math.floor(Math.random() * 12))];
+        }
+        return color;
+    }
+
+
 
 
 })
