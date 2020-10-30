@@ -346,46 +346,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             return false
         }
-    }
-    class Hexagon {
-        constructor(x, y, size, color) {
-            this.center = new Circle(x, y, size - (size * .293), "transparent")
-            this.nodes = []
-            this.angle = 0
-            this.size = size
-            this.color = color
-            this.angleIncrement = (Math.PI * 2) / 6
-            for (let t = 0; t < 6; t++) {
-                let node = new Circle(this.center.x + (this.size * (Math.cos(this.angle))), this.center.y + (this.size * (Math.sin(this.angle))), 0, "transparent")
-                this.nodes.push(node)
-                this.angle += this.angleIncrement
+    } class Polygon {
+        constructor(x, y, size, color, sides = 3, xmom = 0, ymom = 0, angle = 0, reflect = 0) {
+            if (sides < 2) {
+                sides = 2
             }
-        }
-        isPointInside(point) {// rough approximation
-            this.areaY = point.y - this.center.y
-            this.areaX = point.x - this.center.x
-            if (((this.areaX * this.areaX) + (this.areaY * this.areaY)) <= (this.center.radius * this.center.radius)) {
-                return true
-            }
-            return false
-        }
-        draw() {
-            canvas_context.strokeStyle = this.color
-            canvas_context.lineWidth = 0
-            canvas_context.beginPath()
-            canvas_context.moveTo(this.nodes[0].x, this.nodes[0].y)
-            for (let t = 1; t < this.nodes.length; t++) {
-                canvas_context.lineTo(this.nodes[t].x, this.nodes[t].y)
-            }
-            canvas_context.lineTo(this.nodes[0].x, this.nodes[0].y)
-            canvas_context.fill()
-            canvas_context.stroke()
-            canvas_context.closePath()
-        }
-    }
-    class Polygon {
-        constructor(x, y, size, color, sides = 3, angle = 0) {
-            this.center = new Circle(x, y, size - (size * .293), "transparent")
+            this.reflect = reflect
+            this.xmom = xmom
+            this.ymom = ymom
+            this.body = new Circle(x, y, size - (size * .293), "transparent")
             this.nodes = []
             this.angle = angle
             this.size = size
@@ -393,7 +362,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.angleIncrement = (Math.PI * 2) / sides
             this.sides = sides
             for (let t = 0; t < sides; t++) {
-                let node = new Circle(this.center.x + (this.size * (Math.cos(this.angle))), this.center.y + (this.size * (Math.sin(this.angle))), 0, "transparent")
+                let node = new Circle(this.body.x + (this.size * (Math.cos(this.angle))), this.body.y + (this.size * (Math.sin(this.angle))), 0, "transparent")
                 this.nodes.push(node)
                 this.angle += this.angleIncrement
             }
@@ -402,15 +371,54 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.sides <= 2) {
                 return false
             }
-            this.areaY = point.y - this.center.y
-            this.areaX = point.x - this.center.x
-            if (((this.areaX * this.areaX) + (this.areaY * this.areaY)) <= (this.center.radius * this.center.radius)) {
+            this.areaY = point.y - this.body.y
+            this.areaX = point.x - this.body.x
+            if (((this.areaX * this.areaX) + (this.areaY * this.areaY)) <= (this.body.radius * this.body.radius)) {
                 return true
             }
             return false
         }
+        move() {
+            if (this.reflect == 1) {
+                if (this.body.x  > canvas.width) {
+
+                    if (this.xmom > 0) {
+                        this.xmom *= -1
+                    }
+
+                }
+                if (this.body.y > canvas.height) {
+                    if (this.ymom > 0) {
+                        this.ymom *= -1
+                    }
+
+                }
+                if (this.body.x  < 0) {
+                    if (this.xmom < 0) {
+                        this.xmom *= -1
+                    }
+
+                }
+                if (this.body.y < 0) {
+
+                    if (this.ymom < 0) {
+                        this.ymom *= -1
+                    }
+                }
+            }
+            this.body.x += this.xmom
+            this.body.y += this.ymom
+
+        }
         draw() {
+            this.nodes = []
+            for (let t = 0; t < this.sides; t++) {
+                let node = new Circle(this.body.x + (this.size * (Math.cos(this.angle))), this.body.y + (this.size * (Math.sin(this.angle))), 0, "transparent")
+                this.nodes.push(node)
+                this.angle += this.angleIncrement
+            }
             canvas_context.strokeStyle = this.color
+            canvas_context.fillStyle = this.color
             canvas_context.lineWidth = 0
             canvas_context.beginPath()
             canvas_context.moveTo(this.nodes[0].x, this.nodes[0].y)
@@ -556,28 +564,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             canvas_context.fill()
             this.ray = []
         }
-
-        control() {
-            if (keysPressed['t']) {
-                this.globalangle += .05
-            }
-            if (keysPressed['r']) {
-                this.globalangle -= .05
-            }
-            if (keysPressed['w']) {
-                this.body.y -= 2
-            }
-            if (keysPressed['d']) {
-                this.body.x += 2
-            }
-            if (keysPressed['s']) {
-                this.body.y += 2
-            }
-            if (keysPressed['a']) {
-                this.body.x -= 2
-            }
-        }
     }
+
 
 
 
@@ -623,6 +611,41 @@ window.addEventListener('DOMContentLoaded', (event) => {
             tip.x = xs
             tip.y = ys
             tip.body = tip
+        }
+    }
+
+
+
+    function control(object) {
+        if (typeof object.body != 'undefined') {
+            if (keysPressed['w']) {
+                object.body.y -= 2
+            }
+            if (keysPressed['d']) {
+                object.body.x += 2
+            }
+            if (keysPressed['s']) {
+                object.body.y += 2
+            }
+            if (keysPressed['a']) {
+                object.body.x -= 2
+            }
+
+        } else if (typeof object != 'undefined') {
+
+            if (keysPressed['w']) {
+                object.y -= 2
+            }
+            if (keysPressed['d']) {
+                object.x += 2
+            }
+            if (keysPressed['s']) {
+                object.y += 2
+            }
+            if (keysPressed['a']) {
+                object.x -= 2
+            }
+
         }
     }
 
