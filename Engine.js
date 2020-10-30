@@ -368,6 +368,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
         isPointInside(point) { // rough approximation
+            this.body.radius = this.size - (this.size * .293)
             if (this.sides <= 2) {
                 return false
             }
@@ -381,7 +382,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         move() {
             if (this.reflect == 1) {
                 if (this.body.x  > canvas.width) {
-
                     if (this.xmom > 0) {
                         this.xmom *= -1
                     }
@@ -412,6 +412,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         draw() {
             this.nodes = []
+            this.angleIncrement = (Math.PI * 2) / this.sides
+            this.body.radius = this.size - (this.size * .293)
             for (let t = 0; t < this.sides; t++) {
                 let node = new Circle(this.body.x + (this.size * (Math.cos(this.angle))), this.body.y + (this.size * (Math.sin(this.angle))), 0, "transparent")
                 this.nodes.push(node)
@@ -512,6 +514,59 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     }
 
+
+    class Color{
+        constructor(baseColor, red = -1, green = -1, blue = -1){
+            this.color = baseColor
+            if(red != -1 && green != -1 && blue != -1){
+                this.r = red
+                this.g = green
+                this.b = blue
+                if(this.r > 255){
+                    this.r = 255
+                }
+                if(this.g > 255){
+                    this.g = 255
+                }
+                if(this.b > 255){
+                    this.b = 255
+                }
+                if(this.r < 0){
+                    this.r = 0
+                }
+                if(this.g < 0){
+                    this.g = 0
+                }
+                if(this.b < 0){
+                    this.b = 0
+                }
+            }else{
+                this.r = 0
+                this.g = 0
+                this.b = 0
+            }
+        }
+        normalize(){
+            if(this.r > 255){
+                this.r = 255
+            }
+            if(this.g > 255){
+                this.g = 255
+            }
+            if(this.b > 255){
+                this.b = 255
+            }
+            if(this.r < 0){
+                this.r = 0
+            }
+            if(this.g < 0){
+                this.g = 0
+            }
+            if(this.b < 0){
+                this.b = 0
+            }
+        }
+    }
 
     class Observer {
         constructor(x, y, radius, color, range = 100, rays = 10, angle = (Math.PI * .125)) {
