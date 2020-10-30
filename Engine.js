@@ -571,7 +571,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 
-    function setUp(canvas_pass, style) {E
+    function setUp(canvas_pass, style) {
 
         canvas = canvas_pass
         canvas_context = canvas.getContext('2d');
