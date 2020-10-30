@@ -13,6 +13,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 
+    class Point {
+        constructor(x, y) {
+            this.x = x
+            this.y = y
+        }
+    }
 
     class Line {
         constructor(x, y, x2, y2, color, width) {
@@ -124,7 +130,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     class Rectangle {
-        constructor(x, y, height, width, color) {
+        constructor(x, y, width, height, color, fill = 1, stroke = 0, strokeWidth = 1) {
             this.x = x
             this.y = y
             this.height = height
@@ -132,6 +138,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.color = color
             this.xmom = 0
             this.ymom = 0
+            this.stroke = stroke
+            this.strokeWidth = strokeWidth
+            this.fill = fill
         }
         draw() {
             canvas_context.fillStyle = this.color
@@ -167,7 +176,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     class Circle {
-        constructor(x, y, radius, color, xmom = 0, ymom = 0, friction = 1, reflect = 0) {
+        constructor(x, y, radius, color, xmom = 0, ymom = 0, friction = 1, reflect = 0, strokeWidth = 0, strokeColor = "transparent") {
             this.x = x
             this.y = y
             this.radius = radius
@@ -176,19 +185,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.ymom = ymom
             this.friction = friction
             this.reflect = reflect
+            this.strokeWidth = strokeWidth
+            this.strokeColor = strokeColor
         }
         draw() {
-            canvas_context.lineWidth = 0
+            canvas_context.lineWidth = this.strokeWidth
             canvas_context.strokeStyle = this.color
             canvas_context.beginPath();
             if (this.radius > 0) {
                 canvas_context.arc(this.x, this.y, this.radius, 0, (Math.PI * 2), true)
+                canvas_context.fillStyle = this.color
+                canvas_context.fill()
+                canvas_context.stroke();
             } else {
                 console.log("The circle is below a radius of 0, and has not been drawn. The circle is:", this)
             }
-            canvas_context.fillStyle = this.color
-            canvas_context.fill()
-            canvas_context.stroke();
         }
         move() {
             if (this.reflect == 1) {
