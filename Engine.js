@@ -1,8 +1,8 @@
 window.addEventListener('DOMContentLoaded', (event) => {
 
 
-    let canvas  
-    let canvas_context 
+    let canvas
+    let canvas_context
 
     let keysPressed = {}
     document.addEventListener('keydown', (event) => {
@@ -11,19 +11,33 @@ window.addEventListener('DOMContentLoaded', (event) => {
     document.addEventListener('keyup', (event) => {
         delete keysPressed[event.key];
     });
-    
 
+    let flex = tutorial_canvas.getBoundingClientRect();
     let tip = {}
     let xs
     let ys
     window.addEventListener('mousedown', e => {
-        flex = canvas.getBoundingClientRect();
+        flex = tutorial_canvas.getBoundingClientRect();
         xs = e.clientX - flex.left;
         ys = e.clientY - flex.top;
         tip.x = xs
         tip.y = ys
         tip.body = tip
+        // example usage: if(squarecircle(squareOnScreen, tip)){ do stuff }
+        window.addEventListener('mousemove', continued_stimuli);
     });
+    window.addEventListener('mouseup', e => {
+        window.removeEventListener("mousemove", continued_stimuli);
+    })
+    function continued_stimuli(e) {
+        flex = tutorial_canvas.getBoundingClientRect();
+        xs = e.clientX - flex.left;
+        ys = e.clientY - flex.top;
+        tip.x = xs
+        tip.y = ys
+        tip.body = tip
+    }
+
 
 
 
@@ -87,9 +101,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.y = y
             this.color = color
             this.length = length
-            this.x1 = this.x + this.length*leg1Ratio
-            this.x2 = this.x - this.length*leg2Ratio
-            this.tip = this.y - this.length*heightRatio
+            this.x1 = this.x + this.length * leg1Ratio
+            this.x2 = this.x - this.length * leg2Ratio
+            this.tip = this.y - this.length * heightRatio
             this.accept1 = (this.y - this.tip) / (this.x1 - this.x)
             this.accept2 = (this.y - this.tip) / (this.x2 - this.x)
             this.fill = fill
@@ -104,7 +118,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             canvas_context.lineTo(this.x, this.tip)
             canvas_context.lineTo(this.x2, this.y)
             canvas_context.lineTo(this.x, this.y)
-            if(this.fill == 1){
+            if (this.fill == 1) {
                 canvas_context.fill()
             }
             canvas_context.stroke()
@@ -356,16 +370,54 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.angle = 0
             this.size = size
             this.color = color
-            this.pile = 0
-            this.t = 0
-            this.k = 0
+            this.angleIncrement = (Math.PI * 2) / 6
             for (let t = 0; t < 6; t++) {
                 let node = new Circle(this.center.x + (this.size * (Math.cos(this.angle))), this.center.y + (this.size * (Math.sin(this.angle))), 0, "transparent")
                 this.nodes.push(node)
-                this.angle += (Math.PI * 2) / 6
+                this.angle += this.angleIncrement
             }
         }
-        isPointInside(point) {
+        isPointInside(point) {// rough approximation
+            this.areaY = point.y - this.center.y
+            this.areaX = point.x - this.center.x
+            if (((this.areaX * this.areaX) + (this.areaY * this.areaY)) <= (this.center.radius * this.center.radius)) {
+                return true
+            }
+            return false
+        }
+        draw() {
+            canvas_context.strokeStyle = this.color
+            canvas_context.lineWidth = 0
+            canvas_context.beginPath()
+            canvas_context.moveTo(this.nodes[0].x, this.nodes[0].y)
+            for (let t = 1; t < this.nodes.length; t++) {
+                canvas_context.lineTo(this.nodes[t].x, this.nodes[t].y)
+            }
+            canvas_context.lineTo(this.nodes[0].x, this.nodes[0].y)
+            canvas_context.fill()
+            canvas_context.stroke()
+            canvas_context.closePath()
+        }
+    }
+    class Polygon {
+        constructor(x, y, size, color, sides = 3) {
+            this.center = new Circle(x, y, size - (size * .293), "transparent")
+            this.nodes = []
+            this.angle = 0
+            this.size = size
+            this.color = color
+            this.angleIncrement = (Math.PI * 2) / sides
+            this.sides = sides
+            for (let t = 0; t < sides; t++) {
+                let node = new Circle(this.center.x + (this.size * (Math.cos(this.angle))), this.center.y + (this.size * (Math.sin(this.angle))), 0, "transparent")
+                this.nodes.push(node)
+                this.angle += this.angleIncrement
+            }
+        }
+        isPointInside(point) { // rough approximation
+            if(this.sides <= 2){
+                return false
+            }
             this.areaY = point.y - this.center.y
             this.areaX = point.x - this.center.x
             if (((this.areaX * this.areaX) + (this.areaY * this.areaY)) <= (this.center.radius * this.center.radius)) {
@@ -544,18 +596,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 
 
-    window.setInterval(function(){ 
+    window.setInterval(function () {
         canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
 
     }, 17)
 
 
 
-    function setUp(canvas_pass, style ){
+    function setUp(canvas_pass, style) {
 
-         canvas = canvas_pass
-         canvas_context = canvas.getContext('2d');
-    
+        canvas = canvas_pass
+        canvas_context = canvas.getContext('2d');
+
         canvas.style.background = style
 
     }
