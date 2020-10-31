@@ -1,12 +1,8 @@
 
 window.addEventListener('DOMContentLoaded', (event) => {
-
-
-
     const gamepadAPI = {
         controller: {},
         turbo: true,
-
         connect: function (evt) {
             if (navigator.getGamepads()[0] != null) {
                 gamepadAPI.controller = navigator.getGamepads()[0]
@@ -94,41 +90,34 @@ window.addEventListener('DOMContentLoaded', (event) => {
         },
         buttons: [
             'A', 'B', 'X', 'Y',
-            'LB', 'RB', 
+            'LB', 'RB',
             'Left-Trigger', 'Right-Trigger',
-            'Back', 'Start', 
-            'Axis-Left', 'Axis-Right', 
-            'DPad-Up', 'DPad-Down', 'DPad-Left','DPad-Right', 
+            'Back', 'Start',
+            'Axis-Left', 'Axis-Right',
+            'DPad-Up', 'DPad-Down', 'DPad-Left', 'DPad-Right',
             "Power",
         ],
         buttonsCache: [],
         buttonsStatus: [],
         axesStatus: []
     };
-
-
     let canvas
     let canvas_context
-
     let keysPressed = {}
     let FLEX_engine
     let TIP_engine = {}
     let XS_engine
     let YS_engine
-
-
-
     class Point {
         constructor(x, y) {
             this.x = x
             this.y = y
             this.radius = 0
         }
-        pointDistance(point){
+        pointDistance(point) {
             return (new LineOP(this, point, "transparent", 0)).hypotenuse()
         }
     }
-
     class Line {
         constructor(x, y, x2, y2, color, width) {
             this.x1 = x
@@ -155,8 +144,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             canvas_context.lineWidth = linewidthstorage
         }
     }
-
-
     class LineOP {
         constructor(object, target, color, width) {
             this.object = object
@@ -181,8 +168,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             canvas_context.lineWidth = linewidthstorage
         }
     }
-
-
     class Triangle {
         constructor(x, y, color, length, fill = 0, strokeWidth = 0, leg1Ratio = 1, leg2Ratio = 1, heightRatio = 1) {
             this.x = x
@@ -212,7 +197,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             canvas_context.stroke()
             canvas_context.closePath()
         }
-
         isPointInside(point) {
             if (point.x <= this.x1) {
                 if (point.y >= this.tip) {
@@ -313,26 +297,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
         move() {
             if (this.reflect == 1) {
                 if (this.x + this.radius > canvas.width) {
-
                     if (this.xmom > 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.y + this.radius > canvas.height) {
                     if (this.ymom > 0) {
                         this.ymom *= -1
                     }
-
                 }
                 if (this.x - this.radius < 0) {
                     if (this.xmom < 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.y - this.radius < 0) {
-
                     if (this.ymom < 0) {
                         this.ymom *= -1
                     }
@@ -340,31 +319,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.x += this.xmom
             this.y += this.ymom
-
         }
         unmove() {
             if (this.reflect == 1) {
                 if (this.x + this.radius > canvas.width) {
-
                     if (this.xmom > 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.y + this.radius > canvas.height) {
                     if (this.ymom > 0) {
                         this.ymom *= -1
                     }
-
                 }
                 if (this.x - this.radius < 0) {
                     if (this.xmom < 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.y - this.radius < 0) {
-
                     if (this.ymom < 0) {
                         this.ymom *= -1
                     }
@@ -376,26 +349,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
         frictiveMove() {
             if (this.reflect == 1) {
                 if (this.x + this.radius > canvas.width) {
-
                     if (this.xmom > 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.y + this.radius > canvas.height) {
                     if (this.ymom > 0) {
                         this.ymom *= -1
                     }
-
                 }
                 if (this.x - this.radius < 0) {
                     if (this.xmom < 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.y - this.radius < 0) {
-
                     if (this.ymom < 0) {
                         this.ymom *= -1
                     }
@@ -409,26 +377,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
         frictiveunMove() {
             if (this.reflect == 1) {
                 if (this.x + this.radius > canvas.width) {
-
                     if (this.xmom > 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.y + this.radius > canvas.height) {
                     if (this.ymom > 0) {
                         this.ymom *= -1
                     }
-
                 }
                 if (this.x - this.radius < 0) {
                     if (this.xmom < 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.y - this.radius < 0) {
-
                     if (this.ymom < 0) {
                         this.ymom *= -1
                     }
@@ -506,7 +469,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
                 if (this.body.y < 0) {
-
                     if (this.ymom < 0) {
                         this.ymom *= -1
                     }
@@ -559,7 +521,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             return false
         }
         isInsideOf(box) {
-
             for (let t = 0; t < this.shapes.length; t++) {
                 if (box.isPointInside(this.shapes[t])) {
                     return true
@@ -725,7 +686,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.forceConstant = force
             this.centroid = new Point(0, 0)
-
         }
         circularize() {
             this.xpoint = 0
@@ -736,7 +696,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.centroid.x = this.xpoint
             this.centroid.y = this.ypoint
-
             this.angle = 0
             this.angleIncrement = (Math.PI * 2) / this.springs.length
             for (let t = 0; t < this.springs.length; t++) {
@@ -843,7 +802,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             TIP_engine.x = XS_engine
             TIP_engine.y = YS_engine
             TIP_engine.body = TIP_engine
-            // example usage: if((squareOnScreen,TIP_engine)){ do stuff }
+            // example usage: if(object.isPointInside(TIP_engine)){ take action }
             window.addEventListener('mousemove', continued_stimuli);
         });
         window.addEventListener('mouseup', e => {
@@ -872,9 +831,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (keysPressed['a']) {
                 object.body.x -= speed
             }
-
         } else if (typeof object != 'undefined') {
-
             if (keysPressed['w']) {
                 object.y -= speed
             }
@@ -887,7 +844,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (keysPressed['a']) {
                 object.x -= speed
             }
-
         }
     }
     function getRandomLightColor() { // random color that will be visible on  black background
@@ -914,12 +870,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         return color;
     }
-
     let setup_canvas = document.getElementById('canvas') //getting canvas from document
+
+    // object instantiation and creation happens here 
 
     setUp(setup_canvas) // setting up canvas refrences, starting timer. 
     function main() {
         canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
         gamepadAPI.update() //checks for button presses/stick movement on the connected controller
+        // game code goes here
     }
 })
