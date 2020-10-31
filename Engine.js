@@ -2,14 +2,134 @@
 window.addEventListener('DOMContentLoaded', (event) => {
 
 
+
+    const gamepadAPI = {
+        controller: {},
+        turbo: true,
+
+        connect: function (evt) {
+            // if(evt.gamepad){
+
+            if (navigator.getGamepads()[0] != null) {
+                gamepadAPI.controller = navigator.getGamepads()[0]
+                gamepadAPI.turbo = true;
+            } else if (navigator.getGamepads()[1] != null) {
+                gamepadAPI.controller = navigator.getGamepads()[0]
+                gamepadAPI.turbo = true;
+            } else if (navigator.getGamepads()[2] != null) {
+                gamepadAPI.controller = navigator.getGamepads()[0]
+                gamepadAPI.turbo = true;
+            } else if (navigator.getGamepads()[3] != null) {
+                gamepadAPI.controller = navigator.getGamepads()[0]
+                gamepadAPI.turbo = true;
+            }
+            //////console.log('Gamepad connected.');
+            //////console.log(navigator.getGamepads()[0]);
+
+            // }
+
+            for (let i = 0; i < gamepads.length; i++) {
+                //////console.log("Gamepad " + i + ":");
+
+                if (gamepads[i] === null) {
+                    //////console.log("[null]");
+                    continue;
+                }
+
+                if (!gamepads[i].connected) {
+                    //////console.log("[disconnected]");
+                    continue;
+                }
+
+                //////console.log("    Index: " + gamepads[i].index);
+                //////console.log("    ID: " + gamepads[i].id);
+                //////console.log("    Axes: " + gamepads[i].axes.length);
+                //////console.log("    Buttons: " + gamepads[i].buttons.length);
+                //////console.log("    Mapping: " + gamepads[i].mapping);
+            }
+
+        },
+        disconnect: function (evt) {
+            gamepadAPI.turbo = false;
+            delete gamepadAPI.controller;
+            //////console.log('Gamepad disconnected.');
+        },
+        update: function () {
+            // clear the buttons cache
+            gamepadAPI.controller = navigator.getGamepads()[0]
+            gamepadAPI.buttonsCache = [];
+            // move the buttons status from the previous frame to the cache
+            for (var k = 0; k < gamepadAPI.buttonsStatus.length; k++) {
+                gamepadAPI.buttonsCache[k] = gamepadAPI.buttonsStatus[k];
+            }
+            // clear the buttons status
+            gamepadAPI.buttonsStatus = [];
+            // get the gamepad object
+            var c = gamepadAPI.controller || {};
+
+            // loop through buttons and push the pressed ones to the array
+            var pressed = [];
+            if (c.buttons) {
+                for (var b = 0, t = c.buttons.length; b < t; b++) {
+                    if (c.buttons[b].pressed) {
+                        pressed.push(gamepadAPI.buttons[b]);
+                    }
+                }
+            }
+            // loop through axes and push their values to the array
+            var axes = [];
+            if (c.axes) {
+                for (var a = 0, x = c.axes.length; a < x; a++) {
+                    axes.push(c.axes[a].toFixed(2));
+                }
+            }
+            // assign received values
+            gamepadAPI.axesStatus = axes;
+            gamepadAPI.buttonsStatus = pressed;
+            // return buttons for debugging purposes
+            return pressed;
+        },
+        buttonPressed: function (button, hold) {
+            var newPress = false;
+            // loop through pressed buttons
+            for (var i = 0, s = gamepadAPI.buttonsStatus.length; i < s; i++) {
+                // if we found the button we're looking for...
+                if (gamepadAPI.buttonsStatus[i] == button) {
+                    // set the boolean variable to true
+                    newPress = true;
+                    // if we want to check the single press
+                    if (!hold) {
+                        // loop through the cached states from the previous frame
+                        for (var j = 0, p = gamepadAPI.buttonsCache.length; j < p; j++) {
+                            // if the button was already pressed, ignore new press
+                            if (gamepadAPI.buttonsCache[j] == button) {
+                                newPress = false;
+                            }
+                        }
+                    }
+                }
+            }
+            return newPress;
+        },
+        buttons: [
+            'A', 'DPad-Down', 'DPad-Left', 'DPad-Right',
+            'Start', 'Back', 'Axis-Left', 'Axis-Right',
+            'LB', 'RB', 'Power', 'DPad-Up', 'B', 'X', 'Y',
+        ],
+        buttonsCache: [],
+        buttonsStatus: [],
+        axesStatus: []
+    };
+
+
     let canvas
     let canvas_context
 
     let keysPressed = {}
-    let flex //= canvas.getBoundingClientRect();
-    let tip = {}
-    let xs
-    let ys
+    let FLEX_engine 
+    let TIP_engine = {}
+    let XS_engine
+    let YS_engine
 
 
 
@@ -381,7 +501,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         move() {
             if (this.reflect == 1) {
-                if (this.body.x  > canvas.width) {
+                if (this.body.x > canvas.width) {
                     if (this.xmom > 0) {
                         this.xmom *= -1
                     }
@@ -393,7 +513,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
 
                 }
-                if (this.body.x  < 0) {
+                if (this.body.x < 0) {
                     if (this.xmom < 0) {
                         this.xmom *= -1
                     }
@@ -515,54 +635,64 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 
 
-    class Color{
-        constructor(baseColor, red = -1, green = -1, blue = -1){
-            this.color = baseColor
-            if(red != -1 && green != -1 && blue != -1){
+    class Color {
+        constructor(baseColor, red = -1, green = -1, blue = -1, alpha = 1) {
+            this.hue = baseColor
+            if (red != -1 && green != -1 && blue != -1) {
                 this.r = red
                 this.g = green
                 this.b = blue
-                if(this.r > 255){
+                if (alpha != 1) {
+                    if (alpha < 1) {
+                        this.alpha = alpha
+                    } else {
+                        this.alpha = alpha / 255
+                        if (this.alpha > 1) {
+                            this.alpha = 1
+                        }
+                    }
+                }
+                if (this.r > 255) {
                     this.r = 255
                 }
-                if(this.g > 255){
+                if (this.g > 255) {
                     this.g = 255
                 }
-                if(this.b > 255){
+                if (this.b > 255) {
                     this.b = 255
                 }
-                if(this.r < 0){
+                if (this.r < 0) {
                     this.r = 0
                 }
-                if(this.g < 0){
+                if (this.g < 0) {
                     this.g = 0
                 }
-                if(this.b < 0){
+                if (this.b < 0) {
                     this.b = 0
                 }
-            }else{
+            } else {
                 this.r = 0
                 this.g = 0
                 this.b = 0
             }
         }
-        normalize(){
-            if(this.r > 255){
+        normalize() {
+            if (this.r > 255) {
                 this.r = 255
             }
-            if(this.g > 255){
+            if (this.g > 255) {
                 this.g = 255
             }
-            if(this.b > 255){
+            if (this.b > 255) {
                 this.b = 255
             }
-            if(this.r < 0){
+            if (this.r < 0) {
                 this.r = 0
             }
-            if(this.g < 0){
+            if (this.g < 0) {
                 this.g = 0
             }
-            if(this.b < 0){
+            if (this.b < 0) {
                 this.b = 0
             }
         }
@@ -647,58 +777,58 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
         window.addEventListener('mousedown', e => {
-            flex = canvas.getBoundingClientRect();
-            xs = e.clientX - flex.left;
-            ys = e.clientY - flex.top;
-            tip.x = xs
-            tip.y = ys
-            tip.body = tip
-            // example usage: if(squarecircle(squareOnScreen, tip)){ do stuff }
+            FLEX_engine = canvas.getBoundingClientRect();
+            XS_engine = e.clientX - FLEX_engine.left;
+            YS_engine = e.clientY - FLEX_engine.top;
+            TIP_engine.x = XS_engine
+            TIP_engine.y = YS_engine
+            TIP_engine.body = TIP_engine
+            // example usage: if((squareOnScreen,TIP_engine)){ do stuff }
             window.addEventListener('mousemove', continued_stimuli);
         });
         window.addEventListener('mouseup', e => {
             window.removeEventListener("mousemove", continued_stimuli);
         })
         function continued_stimuli(e) {
-            flex = canvas.getBoundingClientRect();
-            xs = e.clientX - flex.left;
-            ys = e.clientY - flex.top;
-            tip.x = xs
-            tip.y = ys
-            tip.body = tip
+            FLEX_engine = canvas.getBoundingClientRect();
+            XS_engine = e.clientX - FLEX_engine.left;
+            YS_engine = e.clientY - FLEX_engine.top;
+            TIP_engine.x = XS_engine
+            TIP_engine.y = YS_engine
+            TIP_engine.body = TIP_engine
         }
     }
 
 
 
-    function control(object) {
+    function control(object, speed = 1) {
         if (typeof object.body != 'undefined') {
             if (keysPressed['w']) {
-                object.body.y -= 2
+                object.body.y -= speed
             }
             if (keysPressed['d']) {
-                object.body.x += 2
+                object.body.x += speed
             }
             if (keysPressed['s']) {
-                object.body.y += 2
+                object.body.y += speed
             }
             if (keysPressed['a']) {
-                object.body.x -= 2
+                object.body.x -= speed
             }
 
         } else if (typeof object != 'undefined') {
 
             if (keysPressed['w']) {
-                object.y -= 2
+                object.y -= speed
             }
             if (keysPressed['d']) {
-                object.x += 2
+                object.x += speed
             }
             if (keysPressed['s']) {
-                object.y += 2
+                object.y += speed
             }
             if (keysPressed['a']) {
-                object.x -= 2
+                object.x -= speed
             }
 
         }
@@ -736,6 +866,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 
 
+    let setup_canvas = document.getElementById('canvas')
+
+    setUp(setup_canvas)
+
+
+
+    function main(){
+
+    }
 
 
 })
