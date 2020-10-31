@@ -584,7 +584,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.width = width
         }
         balance() {
-            this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", width)
+            this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", this.width)
             if (this.beam.hypotenuse() < this.length) {
                 this.body.xmom += (this.body.x - this.anchor.x) / this.length
                 this.body.ymom += (this.body.y - this.anchor.y) / this.length
@@ -706,7 +706,78 @@ window.addEventListener('DOMContentLoaded', (event) => {
             return color;
         }
     }
+    class Softbody {
+        constructor(x, y, radius, color, members = 10, memberLength = 5, force = 10, gravity = 0) {
 
+            this.springs = []
+            this.pin = new Circle(x, y, radius, color)
+
+            this.spring = new Spring(x, y, radius, color, this.pin, memberLength, gravity)
+            this.springs.push(this.spring)
+            for (let k = 0; k < members; k++) {
+                this.spring = new Spring(x, y, radius, color, this.spring.anchor, memberLength, gravity)
+                if (k < members - 1) {
+                    this.springs.push(this.spring)
+                } else {
+                    this.spring.anchor = this.pin
+                    this.springs.push(this.spring)
+                }
+            }
+            this.forceConstant = force
+            this.centroid = new Point(0, 0)
+
+        }
+        circularize(){
+
+            this.xpoint = 0
+            this.ypoint = 0
+
+            for (let s = 0; s < this.springs.length; s++) {
+                this.xpoint += (this.springs[s].anchor.x / this.springs.length)
+                this.ypoint += (this.springs[s].anchor.y / this.springs.length)
+            }
+
+            this.centroid.x = this.xpoint
+            this.centroid.y = this.ypoint
+
+            this.angle = 0
+            this.angleIncrement = (Math.PI*2)/this.springs.length
+            for(let t = 0;t<this.springs.length;t++){
+                this.springs[t].body.x = this.centroid.x+(Math.cos(this.angle)*this.forceConstant)
+                this.springs[t].body.y = this.centroid.y+(Math.sin(this.angle)*this.forceConstant)
+                this.angle+=this.angleIncrement
+            }
+
+
+        }
+        balance() {
+            for (let s = this.springs.length-1; s>=0; s--) {
+                this.springs[s].balance()
+            }
+            this.xpoint = 0
+            this.ypoint = 0
+            for (let s = 0; s < this.springs.length; s++) {
+                this.xpoint += (this.springs[s].anchor.x / this.springs.length)
+                this.ypoint += (this.springs[s].anchor.y / this.springs.length)
+            }
+            this.centroid.x = this.xpoint
+            this.centroid.y = this.ypoint
+            for(let s = 0; s<this.springs.length; s++){
+                this.link = new Line(this.centroid.x, this.centroid.y, this.springs[s].anchor.x, this.springs[s].anchor.y, 0, "transparent")
+                if(this.link.hypotenuse()!=0){
+                    this.springs[s].anchor.xmom += (((this.springs[s].anchor.x-this.centroid.x)/(this.link.hypotenuse())))*this.forceConstant
+                    this.springs[s].anchor.ymom += (((this.springs[s].anchor.y-this.centroid.y)/(this.link.hypotenuse())))*this.forceConstant
+                }
+            }
+            for (let s = 0; s < this.springs.length; s++) {
+                this.springs[s].move()
+            }
+
+            for (let s = 0; s < this.springs.length; s++) {
+                this.springs[s].draw()
+            }
+        }
+    }
     class Observer {
         constructor(x, y, radius, color, range = 100, rays = 10, angle = (Math.PI * .125)) {
             this.body = new Circle(x, y, radius, color)
@@ -880,9 +951,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     setUp(setup_canvas)
 
 
-
     function main() {
-
     }
 
 
