@@ -67,6 +67,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             gamepadAPI.axesStatus = axes;
             gamepadAPI.buttonsStatus = pressed;
             // return buttons for debugging purposes
+            // console.log(pressed)
             return pressed;
         },
         buttonPressed: function (button, hold) {
@@ -92,9 +93,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             return newPress;
         },
         buttons: [
-            'A', 'DPad-Down', 'DPad-Left', 'DPad-Right',
-            'Start', 'Back', 'Axis-Left', 'Axis-Right',
-            'LB', 'RB', 'Power', 'DPad-Up', 'B', 'X', 'Y',
+            'A', 'B', 'X', 'Y',
+            'LB', 'RB', 
+            'Left-Trigger', 'Right-Trigger',
+            'Back', 'Start', 
+            'Axis-Left', 'Axis-Right', 
+            'DPad-Up', 'DPad-Down', 'DPad-Left','DPad-Right', 
+            "Power",
         ],
         buttonsCache: [],
         buttonsStatus: [],
@@ -118,6 +123,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.x = x
             this.y = y
             this.radius = 0
+        }
+        pointDistance(point){
+            return (new LineOP(this, point, "transparent", 0)).hypotenuse()
         }
     }
 
@@ -486,19 +494,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     if (this.xmom > 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.body.y > canvas.height) {
                     if (this.ymom > 0) {
                         this.ymom *= -1
                     }
-
                 }
                 if (this.body.x < 0) {
                     if (this.xmom < 0) {
                         this.xmom *= -1
                     }
-
                 }
                 if (this.body.y < 0) {
 
@@ -509,7 +514,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.body.x += this.xmom
             this.body.y += this.ymom
-
         }
         draw() {
             this.nodes = []
@@ -615,8 +619,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
 
     }
-
-
     class Color {
         constructor(baseColor, red = -1, green = -1, blue = -1, alpha = 1) {
             this.hue = baseColor
@@ -706,12 +708,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             return color;
         }
     }
-    class Softbody {
+    class Softbody { //buggy, spins in place
         constructor(x, y, radius, color, members = 10, memberLength = 5, force = 10, gravity = 0) {
-
             this.springs = []
             this.pin = new Circle(x, y, radius, color)
-
             this.spring = new Spring(x, y, radius, color, this.pin, memberLength, gravity)
             this.springs.push(this.spring)
             for (let k = 0; k < members; k++) {
@@ -727,31 +727,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.centroid = new Point(0, 0)
 
         }
-        circularize(){
-
+        circularize() {
             this.xpoint = 0
             this.ypoint = 0
-
             for (let s = 0; s < this.springs.length; s++) {
                 this.xpoint += (this.springs[s].anchor.x / this.springs.length)
                 this.ypoint += (this.springs[s].anchor.y / this.springs.length)
             }
-
             this.centroid.x = this.xpoint
             this.centroid.y = this.ypoint
 
             this.angle = 0
-            this.angleIncrement = (Math.PI*2)/this.springs.length
-            for(let t = 0;t<this.springs.length;t++){
-                this.springs[t].body.x = this.centroid.x+(Math.cos(this.angle)*this.forceConstant)
-                this.springs[t].body.y = this.centroid.y+(Math.sin(this.angle)*this.forceConstant)
-                this.angle+=this.angleIncrement
+            this.angleIncrement = (Math.PI * 2) / this.springs.length
+            for (let t = 0; t < this.springs.length; t++) {
+                this.springs[t].body.x = this.centroid.x + (Math.cos(this.angle) * this.forceConstant)
+                this.springs[t].body.y = this.centroid.y + (Math.sin(this.angle) * this.forceConstant)
+                this.angle += this.angleIncrement
             }
-
-
         }
         balance() {
-            for (let s = this.springs.length-1; s>=0; s--) {
+            for (let s = this.springs.length - 1; s >= 0; s--) {
                 this.springs[s].balance()
             }
             this.xpoint = 0
@@ -762,17 +757,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.centroid.x = this.xpoint
             this.centroid.y = this.ypoint
-            for(let s = 0; s<this.springs.length; s++){
+            for (let s = 0; s < this.springs.length; s++) {
                 this.link = new Line(this.centroid.x, this.centroid.y, this.springs[s].anchor.x, this.springs[s].anchor.y, 0, "transparent")
-                if(this.link.hypotenuse()!=0){
-                    this.springs[s].anchor.xmom += (((this.springs[s].anchor.x-this.centroid.x)/(this.link.hypotenuse())))*this.forceConstant
-                    this.springs[s].anchor.ymom += (((this.springs[s].anchor.y-this.centroid.y)/(this.link.hypotenuse())))*this.forceConstant
+                if (this.link.hypotenuse() != 0) {
+                    this.springs[s].anchor.xmom += (((this.springs[s].anchor.x - this.centroid.x) / (this.link.hypotenuse()))) * this.forceConstant
+                    this.springs[s].anchor.ymom += (((this.springs[s].anchor.y - this.centroid.y) / (this.link.hypotenuse()))) * this.forceConstant
                 }
             }
             for (let s = 0; s < this.springs.length; s++) {
                 this.springs[s].move()
             }
-
             for (let s = 0; s < this.springs.length; s++) {
                 this.springs[s].draw()
             }
@@ -812,7 +806,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
         }
-
         draw() {
             this.beam()
             this.body.draw()
@@ -830,32 +823,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.ray = []
         }
     }
-
-
-
-
-
     function setUp(canvas_pass, style = "#000000") {
-
         canvas = canvas_pass
         canvas_context = canvas.getContext('2d');
-
         canvas.style.background = style
-
         window.setInterval(function () {
-            canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
             main()
         }, 17)
-
         document.addEventListener('keydown', (event) => {
             keysPressed[event.key] = true;
         });
         document.addEventListener('keyup', (event) => {
             delete keysPressed[event.key];
         });
-
-
-
         window.addEventListener('mousedown', e => {
             FLEX_engine = canvas.getBoundingClientRect();
             XS_engine = e.clientX - FLEX_engine.left;
@@ -878,10 +858,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             TIP_engine.body = TIP_engine
         }
     }
-
-
-
-    function control(object, speed = 1) {
+    function control(object, speed = 1) { // basic control for objects
         if (typeof object.body != 'undefined') {
             if (keysPressed['w']) {
                 object.body.y -= speed
@@ -913,12 +890,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         }
     }
-
-
-
-
-    // random color that will be visible on  black background
-    function getRandomLightColor() {
+    function getRandomLightColor() { // random color that will be visible on  black background
         var letters = '0123456789ABCDEF';
         var color = '#';
         for (var i = 0; i < 6; i++) {
@@ -926,8 +898,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         return color;
     }
-    // random color
-    function getRandomColor() {
+    function getRandomColor() { // random color
         var letters = '0123456789ABCDEF';
         var color = '#';
         for (var i = 0; i < 6; i++) {
@@ -935,8 +906,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         return color;
     }
-    // color that will be visible on a black background
-    function getRandomDarkColor() {
+    function getRandomDarkColor() {// color that will be visible on a black background
         var letters = '0123456789ABCDEF';
         var color = '#';
         for (var i = 0; i < 6; i++) {
@@ -945,14 +915,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
         return color;
     }
 
+    let setup_canvas = document.getElementById('canvas') //getting canvas from document
 
-    let setup_canvas = document.getElementById('canvas')
-
-    setUp(setup_canvas)
-
-
+    setUp(setup_canvas) // setting up canvas refrences, starting timer. 
     function main() {
+        canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
+        gamepadAPI.update() //checks for button presses/stick movement on the connected controller
     }
-
-
 })
