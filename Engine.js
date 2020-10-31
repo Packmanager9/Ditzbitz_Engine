@@ -31,55 +31,40 @@ window.addEventListener('DOMContentLoaded', (event) => {
             delete gamepadAPI.controller;
         },
         update: function () {
-            // clear the buttons cache
             gamepadAPI.controller = navigator.getGamepads()[0]
-            gamepadAPI.buttonsCache = [];
-            // move the buttons status from the previous frame to the cache
-            for (var k = 0; k < gamepadAPI.buttonsStatus.length; k++) {
+            gamepadAPI.buttonsCache = [];// clear the buttons cache
+            for (var k = 0; k < gamepadAPI.buttonsStatus.length; k++) {// move the buttons status from the previous frame to the cache
                 gamepadAPI.buttonsCache[k] = gamepadAPI.buttonsStatus[k];
             }
-            // clear the buttons status
-            gamepadAPI.buttonsStatus = [];
-            // get the gamepad object
-            var c = gamepadAPI.controller || {};
-
-            // loop through buttons and push the pressed ones to the array
+            gamepadAPI.buttonsStatus = [];// clear the buttons status
+            var c = gamepadAPI.controller || {}; // get the gamepad object
             var pressed = [];
             if (c.buttons) {
-                for (var b = 0, t = c.buttons.length; b < t; b++) {
+                for (var b = 0, t = c.buttons.length; b < t; b++) {// loop through buttons and push the pressed ones to the array
                     if (c.buttons[b].pressed) {
                         pressed.push(gamepadAPI.buttons[b]);
                     }
                 }
             }
-            // loop through axes and push their values to the array
             var axes = [];
             if (c.axes) {
-                for (var a = 0, x = c.axes.length; a < x; a++) {
+                for (var a = 0, x = c.axes.length; a < x; a++) {// loop through axes and push their values to the array
                     axes.push(c.axes[a].toFixed(2));
                 }
             }
-            // assign received values
-            gamepadAPI.axesStatus = axes;
+            gamepadAPI.axesStatus = axes;// assign received values
             gamepadAPI.buttonsStatus = pressed;
-            // return buttons for debugging purposes
-            // console.log(pressed)
+            // console.log(pressed); // return buttons for debugging purposes
             return pressed;
         },
         buttonPressed: function (button, hold) {
             var newPress = false;
-            // loop through pressed buttons
-            for (var i = 0, s = gamepadAPI.buttonsStatus.length; i < s; i++) {
-                // if we found the button we're looking for...
-                if (gamepadAPI.buttonsStatus[i] == button) {
-                    // set the boolean variable to true
-                    newPress = true;
-                    // if we want to check the single press
-                    if (!hold) {
-                        // loop through the cached states from the previous frame
-                        for (var j = 0, p = gamepadAPI.buttonsCache.length; j < p; j++) {
-                            // if the button was already pressed, ignore new press
-                            if (gamepadAPI.buttonsCache[j] == button) {
+            for (var i = 0, s = gamepadAPI.buttonsStatus.length; i < s; i++) {// loop through pressed buttons
+                if (gamepadAPI.buttonsStatus[i] == button) {// if we found the button we're looking for...
+                    newPress = true;// set the boolean variable to true
+                    if (!hold) {// if we want to check the single press
+                        for (var j = 0, p = gamepadAPI.buttonsCache.length; j < p; j++) {// loop through the cached states from the previous frame
+                            if (gamepadAPI.buttonsCache[j] == button) { // if the button was already pressed, ignore new press
                                 newPress = false;
                             }
                         }
@@ -89,13 +74,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             return newPress;
         },
         buttons: [
-            'A', 'B', 'X', 'Y',
-            'LB', 'RB',
-            'Left-Trigger', 'Right-Trigger',
-            'Back', 'Start',
-            'Axis-Left', 'Axis-Right',
-            'DPad-Up', 'DPad-Down', 'DPad-Left', 'DPad-Right',
-            "Power",
+            'A', 'B', 'X', 'Y', 'LB', 'RB', 'Left-Trigger', 'Right-Trigger', 'Back', 'Start', 'Axis-Left', 'Axis-Right', 'DPad-Up', 'DPad-Down', 'DPad-Left', 'DPad-Right', "Power"
         ],
         buttonsCache: [],
         buttonsStatus: [],
@@ -817,10 +796,28 @@ window.addEventListener('DOMContentLoaded', (event) => {
             TIP_engine.body = TIP_engine
         }
     }
+    function gamepad_control(object, speed = 1) { // basic control for objects using the controler
+        console.log(gamepadAPI.axesStatus[1]*gamepadAPI.axesStatus[0])
+        if (typeof object.body != 'undefined') {
+            if(typeof (gamepadAPI.axesStatus[1]) != 'undefined'){
+                if(typeof (gamepadAPI.axesStatus[0]) != 'undefined'){
+                object.body.x += (gamepadAPI.axesStatus[2] * speed)
+                object.body.y += (gamepadAPI.axesStatus[1] * speed)
+                }
+            }
+        } else if (typeof object != 'undefined') {
+            if(typeof (gamepadAPI.axesStatus[1]) != 'undefined'){
+                if(typeof (gamepadAPI.axesStatus[0]) != 'undefined'){
+                object.x += (gamepadAPI.axesStatus[0] * speed)
+                object.y += (gamepadAPI.axesStatus[1] * speed)
+                }
+            }
+        }
+    }
     function control(object, speed = 1) { // basic control for objects
         if (typeof object.body != 'undefined') {
             if (keysPressed['w']) {
-                object.body.y -= speed
+                object.body.y -= speed * gamepadAPI.axesStatus[0]
             }
             if (keysPressed['d']) {
                 object.body.x += speed
@@ -874,10 +871,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     // object instantiation and creation happens here 
 
+
+
     setUp(setup_canvas) // setting up canvas refrences, starting timer. 
     function main() {
         canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
-        gamepadAPI.update() //checks for button presses/stick movement on the connected controller
+        gamepadAPI.update() //checks for button presses/stick movement on the connected controller)
         // game code goes here
     }
 })
