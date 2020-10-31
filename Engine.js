@@ -8,8 +8,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         turbo: true,
 
         connect: function (evt) {
-            // if(evt.gamepad){
-
             if (navigator.getGamepads()[0] != null) {
                 gamepadAPI.controller = navigator.getGamepads()[0]
                 gamepadAPI.turbo = true;
@@ -23,36 +21,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 gamepadAPI.controller = navigator.getGamepads()[0]
                 gamepadAPI.turbo = true;
             }
-            //////console.log('Gamepad connected.');
-            //////console.log(navigator.getGamepads()[0]);
-
-            // }
-
             for (let i = 0; i < gamepads.length; i++) {
-                //////console.log("Gamepad " + i + ":");
-
                 if (gamepads[i] === null) {
-                    //////console.log("[null]");
                     continue;
                 }
-
                 if (!gamepads[i].connected) {
-                    //////console.log("[disconnected]");
                     continue;
                 }
-
-                //////console.log("    Index: " + gamepads[i].index);
-                //////console.log("    ID: " + gamepads[i].id);
-                //////console.log("    Axes: " + gamepads[i].axes.length);
-                //////console.log("    Buttons: " + gamepads[i].buttons.length);
-                //////console.log("    Mapping: " + gamepads[i].mapping);
             }
-
         },
         disconnect: function (evt) {
             gamepadAPI.turbo = false;
             delete gamepadAPI.controller;
-            //////console.log('Gamepad disconnected.');
         },
         update: function () {
             // clear the buttons cache
@@ -126,7 +106,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let canvas_context
 
     let keysPressed = {}
-    let FLEX_engine 
+    let FLEX_engine
     let TIP_engine = {}
     let XS_engine
     let YS_engine
@@ -137,6 +117,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         constructor(x, y) {
             this.x = x
             this.y = y
+            this.radius = 0
         }
     }
 
@@ -587,22 +568,23 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     class Spring {
-        constructor(x, y, radius, color, body = 0, length = 1, gravity = 0) {
+        constructor(x, y, radius, color, body = 0, length = 1, gravity = 0, width = 1) {
             if (body == 0) {
                 this.body = new Circle(x, y, radius, color)
                 this.anchor = new Circle(x, y, radius, color)
-                this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", 5)
+                this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", width)
                 this.length = length
             } else {
                 this.body = body
                 this.anchor = new Circle(x, y, radius, color)
-                this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", 5)
+                this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", width)
                 this.length = length
             }
             this.gravity = gravity
+            this.width = width
         }
         balance() {
-            this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", 5)
+            this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", width)
             if (this.beam.hypotenuse() < this.length) {
                 this.body.xmom += (this.body.x - this.anchor.x) / this.length
                 this.body.ymom += (this.body.y - this.anchor.y) / this.length
@@ -622,7 +604,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.anchor.ymom = (this.anchor.ymom + ymomentumaverage) / 2
         }
         draw() {
-            this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", 5)
+            this.beam = new Line(this.body.x, this.body.y, this.anchor.x, this.anchor.y, "yellow", this.width)
             this.beam.draw()
             this.body.draw()
             this.anchor.draw()
@@ -696,6 +678,33 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.b = 0
             }
         }
+        randomLight() {
+            var letters = '0123456789ABCDEF';
+            var hash = '#';
+            for (var i = 0; i < 6; i++) {
+                hash += letters[(Math.floor(Math.random() * 12) + 4)];
+            }
+            var color = new Color(hash, 55 + Math.random() * 200, 55 + Math.random() * 200, 55 + Math.random() * 200)
+            return color;
+        }
+        randomDark() {
+            var letters = '0123456789ABCDEF';
+            var hash = '#';
+            for (var i = 0; i < 6; i++) {
+                hash += letters[(Math.floor(Math.random() * 12))];
+            }
+            var color = new Color(hash, Math.random() * 200, Math.random() * 200, Math.random() * 200)
+            return color;
+        }
+        random() {
+            var letters = '0123456789ABCDEF';
+            var hash = '#';
+            for (var i = 0; i < 6; i++) {
+                hash += letters[(Math.floor(Math.random() * 16))];
+            }
+            var color = new Color(hash, Math.random() * 255, Math.random() * 255, Math.random() * 255)
+            return color;
+        }
     }
 
     class Observer {
@@ -719,7 +728,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 ray.lifespan = this.rayrange - 1
                 this.ray.push(ray)
             }
-            for (let f = 3; f < this.rayrange / 2; f++) {
+            for (let f = 0; f < this.rayrange; f++) {
                 for (let t = 0; t < this.ray.length; t++) {
                     if (this.ray[t].collided < 1) {
                         this.ray[t].move()
@@ -872,7 +881,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 
-    function main(){
+    function main() {
 
     }
 
