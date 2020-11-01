@@ -350,8 +350,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.x += this.xmom
             this.y += this.ymom
-            this.x *= this.friction
-            this.y *= this.friction
+            this.xmom *= this.friction
+            this.ymom *= this.friction
         }
         frictiveunMove() {
             if (this.reflect == 1) {
@@ -376,8 +376,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
             }
-            this.x /= this.friction
-            this.y /= this.friction
+            this.xmom /= this.friction
+            this.ymom /= this.friction
             this.x -= this.xmom
             this.y -= this.ymom
         }
