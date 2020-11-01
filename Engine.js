@@ -774,7 +774,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         document.addEventListener('keyup', (event) => {
             delete keysPressed[event.key];
         });
-        window.addEventListener('mousedown', e => {
+        window.addEventListener('pointerdown', e => {
             FLEX_engine = canvas.getBoundingClientRect();
             XS_engine = e.clientX - FLEX_engine.left;
             YS_engine = e.clientY - FLEX_engine.top;
@@ -782,10 +782,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             TIP_engine.y = YS_engine
             TIP_engine.body = TIP_engine
             // example usage: if(object.isPointInside(TIP_engine)){ take action }
-            window.addEventListener('mousemove', continued_stimuli);
+            window.addEventListener('pointermove', continued_stimuli);
         });
-        window.addEventListener('mouseup', e => {
-            window.removeEventListener("mousemove", continued_stimuli);
+        window.addEventListener('pointerup', e => {
+            window.removeEventListener("pointermove", continued_stimuli);
         })
         function continued_stimuli(e) {
             FLEX_engine = canvas.getBoundingClientRect();
