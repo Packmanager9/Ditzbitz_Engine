@@ -867,13 +867,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         return color;
     }
+    function castBetween(from, to, granularity = 10, radius = 1) { //creates a sort of beam hitbox between two points, with a granularity (number of members over distance), with a radius defined as well
+            let limit = granularity
+            let shape_array = []
+            for (let t = 0; t < limit; t++) {
+                let circ = new Circle((from.x * (t / limit)) + (to.x * ((limit - t) / limit)), (from.y * (t / limit)) + (to.y * ((limit - t) / limit)), radius, "red")
+                shape_array.push(circ)
+            }
+            return (new Shape(shape_array))
+    }
+
     let setup_canvas = document.getElementById('canvas') //getting canvas from document
+
+    setUp(setup_canvas) // setting up canvas refrences, starting timer. 
 
     // object instantiation and creation happens here 
 
 
 
-    setUp(setup_canvas) // setting up canvas refrences, starting timer. 
     function main() {
         canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
         gamepadAPI.update() //checks for button presses/stick movement on the connected controller)
