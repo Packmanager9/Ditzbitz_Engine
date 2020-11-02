@@ -817,7 +817,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     function control(object, speed = 1) { // basic control for objects
         if (typeof object.body != 'undefined') {
             if (keysPressed['w']) {
-                object.body.y -= speed * gamepadAPI.axesStatus[0]
+                object.body.y -= speed
             }
             if (keysPressed['d']) {
                 object.body.x += speed
