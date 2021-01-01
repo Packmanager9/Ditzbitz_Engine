@@ -1,4 +1,54 @@
 
+let scape1 = new Image()
+scape1.src = "2399.jpg"
+let scape2 = new Image()
+scape2.src = "1876.jpg"
+let scape3 = new Image()
+scape3.src = "3930.jpg"
+let scape4 = new Image()
+scape4.src = "1624.jpg"
+let scape5 = new Image()
+scape5.src = "1847.jpg"
+let bumper = new Audio()
+bumper.src = "bumpy.wav"
+
+
+let alertsong = new Audio()
+alertsong.src = "Alert.wav"
+let betraysong = new Audio()
+betraysong.src = "Betray.wav"
+let blocksong = new Audio()
+blocksong.src = "Block.wav"
+let bypasssong = new Audio()
+bypasssong.src = "Bypass.wav"
+let detonatesong = new Audio()
+detonatesong.src = "Detonate.wav"
+let drainsong = new Audio()
+drainsong.src = "Drain.wav"
+let enragesong = new Audio()
+enragesong.src = "Enrage.wav"
+let paddingsong = new Audio()
+paddingsong.src = "Padding.wav"
+let poisonedsong = new Audio()
+poisonedsong.src = "Poisoned.wav"
+let rampagesong = new Audio()
+rampagesong.src = "Rampage.wav"
+let resistsong = new Audio()
+resistsong.src = "Resist.wav"
+let stunsong = new Audio()
+stunsong.src = "Stunned.wav"
+let summonsong = new Audio()
+summonsong.src = "Summoner.wav"
+let thicksong = new Audio()
+thicksong.src = "Thick.wav"
+let thornsong = new Audio()
+thornsong.src = "Thorns.wav"
+let treatsong = new Audio()
+treatsong.src = "Treat.wav"
+let venomsong = new Audio()
+venomsong.src = "Venom.wav"
+let healsong = new Audio()
+healsong.src = "Heal.wav"
 window.addEventListener('DOMContentLoaded', (event) => {
     const gamepadAPI = {
         controller: {},
@@ -800,82 +850,91 @@ window.addEventListener('DOMContentLoaded', (event) => {
             //     enemies[t].type += 1
             // }
 
-            if (player.health > 0) {
-                FLEX_engine = canvas.getBoundingClientRect();
-                XS_engine = e.clientX - FLEX_engine.left;
-                YS_engine = e.clientY - FLEX_engine.top;
-                TIP_engine.x = XS_engine
-                TIP_engine.y = YS_engine
-                TIP_engine.body = TIP_engine
-                if (player.reward == 0) {
-                    if (player.drawbutton.isPointInside(TIP_engine)) {
-                        if (player.locked == 0) {
-                            for (let t = 0; t < enemies.length; t++) {
-                                enemies[t].attacked = 0
+            if(notstarted == 1){
+                if(startbutton.isPointInside(TIP_engine)){
+                    notstarted = 0
+                }
+            }else{
+
+                if (player.health > 0) {
+                    FLEX_engine = canvas.getBoundingClientRect();
+                    XS_engine = e.clientX - FLEX_engine.left;
+                    YS_engine = e.clientY - FLEX_engine.top;
+                    TIP_engine.x = XS_engine
+                    TIP_engine.y = YS_engine
+                    TIP_engine.body = TIP_engine
+                    if (player.reward == 0) {
+                        if (player.drawbutton.isPointInside(TIP_engine)) {
+                            if (player.locked == 0) {
+                                for (let t = 0; t < enemies.length; t++) {
+                                    enemies[t].attacked = 0
+                                }
+                                player.deck.pull()
                             }
-                            player.deck.pull()
+                        }
+                    } else {
+    
+                    }
+                    for (let t = 0; t < player.deck.active.length; t++) {
+                        if (player.deck.active[t].body.isPointInside(TIP_engine)) {
+                            player.deck.active[t].play()
                         }
                     }
-                } else {
-                
-                }
-                for (let t = 0; t < player.deck.active.length; t++) {
-                    if (player.deck.active[t].body.isPointInside(TIP_engine)) {
-                        player.deck.active[t].play()
+                    for (let t = 0; t < enemies.length; t++) {
+                        if (enemies[t].body.body.isPointInside(TIP_engine)) {
+                            player.selected = enemies[t]
+                            tringle.x = player.selected.body.body.x
+                            tringle.y = player.selected.body.body.y - 90
+                        }
                     }
                 }
-                for (let t = 0; t < enemies.length; t++) {
-                    if (enemies[t].body.body.isPointInside(TIP_engine)) {
-                        player.selected = enemies[t]
-                        tringle.x = player.selected.body.body.x
-                        tringle.y = player.selected.body.body.y - 65
-                    }
-                }
-            }
-
-            for (let t = 0; t < player.deck.reward.length; t++) {
-                if (player.deck.reward[t].body.isPointInside(TIP_engine)) {
-                    player.deck.drawable.push(player.deck.reward[t].clone())
-                    player.deck.reward = []
-                    player.reward = 0
-                    player.deck.softpull()
-                    spawn()
-                }
-                if(player.reward != 0){
-                    if (player.skipbutton.isPointInside(TIP_engine)) {
+    
+                for (let t = 0; t < player.deck.reward.length; t++) {
+                    if (player.deck.reward[t].body.isPointInside(TIP_engine)) {
+                        player.deck.drawable.push(player.deck.reward[t].clone())
                         player.deck.reward = []
                         player.reward = 0
                         player.deck.softpull()
                         spawn()
                     }
-                    if (player.cleanbutton.isPointInside(TIP_engine)) {
-                        player.cleaning *= -1
+                    if (player.reward != 0) {
+                        if (player.skipbutton.isPointInside(TIP_engine)) {
+                            player.deck.reward = []
+                            player.reward = 0
+                            player.deck.softpull()
+                            spawn()
+                        }
                     }
-
-                    if (player.indexdownbutton.isPointInside(TIP_engine)) {
+                }
+                if (player.cleanbutton.isPointInside(TIP_engine)) {
+                    player.cleaning *= -1
+                }
+    
+                if (player.indexdownbutton.isPointInside(TIP_engine)) {
+                    player.displaycardindex -= 1
+                    if (player.displaycardindex < 0) {
+                        player.displaycardindex = 0
+                    }
+                }
+                if (player.indexupbutton.isPointInside(TIP_engine)) {
+                    player.displaycardindex += 1
+                    if (player.displaycardindex > player.deck.drawable.length - 1) {
+                        player.displaycardindex = player.deck.drawable.length - 1
+                    }
+                }
+    
+                if (player.removebutton.isPointInside(TIP_engine)) {
+                    if (player.deck.drawable.length > 1) {
+                        player.deck.drawable.splice(player.displaycardindex, 1)
                         player.displaycardindex -= 1
                         if (player.displaycardindex < 0) {
                             player.displaycardindex = 0
                         }
                     }
-                    if (player.indexupbutton.isPointInside(TIP_engine)) {
-                        player.displaycardindex += 1
-                        if (player.displaycardindex > player.deck.drawable.length - 1) {
-                            player.displaycardindex = player.deck.drawable.length - 1
-                        }
-                    }
-
-                    if (player.removebutton.isPointInside(TIP_engine)) {
-                        if (player.deck.drawable.length > 1) {
-                            player.deck.drawable.splice(player.displaycardindex, 1)
-                            player.displaycardindex -= 1
-                            if (player.displaycardindex < 0) {
-                                player.displaycardindex = 0
-                            }
-                        }
-                    }
-
                 }
+    
+    
+    
             }
         });
         // window.addEventListener('pointerup', e => {
@@ -1001,6 +1060,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         draw() {
             canvas_context.beginPath();
             canvas_context.lineWidth = 3
+            canvas_context.strokeStyle = "black"
             canvas_context.moveTo(this.x, this.y + this.length / 2);
             canvas_context.lineTo(this.x + this.length, this.y + this.length / 2);
             canvas_context.lineTo(this.x, this.y + this.length * 1.41);
@@ -1015,6 +1075,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     class Player {
         constructor() {
+            this.image = Math.floor(Math.random() * 5)
+            this.leftdisp = Math.random()
+            this.topdisp = Math.random()
             this.locked = 0
             this.selected = {}
             this.selected.body = {}
@@ -1084,7 +1147,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.removebutton = new Rectangle(100, 270, 160, 50, "white")
             this.indexupbutton = new Rectangle(280, 180, 50, 50, "#00FF00")
             this.indexdownbutton = new Rectangle(30, 180, 50, 50, "#FF0000")
-            this.drawbutton = new Rectangle(880, 660, 220, 50, "black")
+            this.drawbutton = new Rectangle(900, 660, 220, 50, "black")
             this.cardbox = new Rectangle(0, 500, 750, 220, "#222222")
             this.statbox = new Rectangle(750, 500, 620, 220, "#111111")
             this.buffbox = new Rectangle(850, 610, 330, 40, "#222222")
@@ -1109,8 +1172,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.cleaning = -1
         }
         draw() {
-            this.cardbox.draw()
-            this.statbox.draw()
+            // this.cardbox.draw()
+            // this.statbox.draw()
 
             if (this.health < 0) {
                 this.health = 0
@@ -1143,6 +1206,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 // canvas_context.fillText("Draw", this.drawbutton.x + 60, this.drawbutton.y + 40)
                 canvas_context.font = "19px arial"
                 canvas_context.fillStyle = "white"
+                canvas_context.strokeStyle = "black"
+                canvas_context.lineWidth = 3
+                canvas_context.strokeText(`Health: ${this.health}`, this.healthbar.x, this.healthbar.y - 20)
+                canvas_context.strokeText(`Energy: ${this.energy}`, this.energybar.x, this.energybar.y - 20)
                 canvas_context.fillText(`Health: ${this.health}`, this.healthbar.x, this.healthbar.y - 20)
                 canvas_context.fillText(`Energy: ${this.energy}`, this.energybar.x, this.energybar.y - 20)
                 canvas_context.font = "19px arial"
@@ -1192,13 +1259,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
         makeprize() {
+            player.displaycardindex = 0
+            player.image = Math.floor(Math.random() * 5)
+            player.leftdisp = Math.random()
+            player.topdisp = Math.random()
             summons = []
             for (let t = 0; t < 5; t++) {
                 this.reward.push(new Card(player.level, Math.floor(Math.random() * 10)))
             }
             for (let t = 0; t < this.reward.length; t++) {
-                this.reward[t].body.x =( t * 160) + 500
-                this.reward[t].body.y  = 350
+                this.reward[t].body.x = (t * 160) + 500
+                this.reward[t].body.y = 350
             }
         }
         push(card) {
@@ -1220,7 +1291,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             for (let t = 0; t < this.active.length; t++) {
                 this.active[t].body.x = (t * 141) + 40
-                this.active[t].body.y = 550
+                this.active[t].body.y = 570
             }
             // for (let t = 0; t < enemies.length; t++) {
             //     enemies[t].attack()
@@ -1265,37 +1336,37 @@ window.addEventListener('DOMContentLoaded', (event) => {
         constructor(level = 0, type = 0) {
             this.level = level + 1
             this.type = type
-            this.body = new Rectangle(0, 550, 100, 120, "red")
+            this.body = new Rectangle(0, 570, 100, 120, "red")
             this.energy = Math.floor(Math.random() * 3) + 1
             if (Math.random() < .4) {
                 this.energy -= 1
             }
             this.hits = Math.floor(((Math.random() * .15) + .85) * 8 * this.level) + 2
-            this.hits = Math.ceil(this.hits * (1 + (((this.energy / 5)))))
+            this.hits = Math.ceil(this.hits * (1 + (((this.energy / 3)))))
             this.played = 0
             if (this.type == 0) {
                 this.hits *= 2
             }
             if (this.type == 1) {
-                this.healing = Math.ceil(((((Math.random() * .15) + .85) * 5.1) + Math.ceil(((Math.random() * .15) + .85) * 6.1 * (level + 1)) + 1) * (1 + (((this.energy / 5)))))
+                this.healing = Math.ceil(((((Math.random() * .15) + .85) * 5.1) + Math.ceil(((Math.random() * .15) + .85) * 6.1 * (level + 1)) + 1) * (1 + (((this.energy / 3)))))
                 this.body.color = "#00FF00"
             } else {
                 this.healing = 0
             }
             if (this.type == 2) {
-                this.block = (Math.ceil((((((Math.random() * .15) + .85) * 1) + Math.ceil(((Math.random() * .15) + .85) * .8 * (level + 0))) + 1) * (1 + (((this.energy / 5))))))
+                this.block = (Math.ceil((((((Math.random() * .15) + .85) * 1) + Math.ceil(((Math.random() * .15) + .85) * .8 * (level + 0))) + 1) * (1 + (((this.energy / 3))))))
                 this.body.color = "gray"
             } else {
                 this.block = 0
             }
             if (this.type == 3) {
-                this.poison = Math.ceil(((((Math.random() * .15) + .85) * 1.05) + Math.ceil(((Math.random() * .15) + .85) * 9 * (level + 1)) + 1) * (1 + (((this.energy / 5)))))
+                this.poison = Math.ceil(((((Math.random() * .15) + .85) * 1.05) + Math.ceil(((Math.random() * .15) + .85) * 9 * (level + 1)) + 1) * (1 + (((this.energy / 3)))))
                 this.body.color = "#FF00FF"
             } else {
                 this.poison = 0
             }
             if (this.type == 4) {
-                this.thorns = (Math.ceil((((((Math.random() * .15) + .85) * 1.05) + Math.ceil(((Math.random() * .15) + .85) * 3.5 * (level + 1))) + 1) * (1 + (((this.energy / 5))))))
+                this.thorns = (Math.ceil((((((Math.random() * .15) + .85) * 1.05) + Math.ceil(((Math.random() * .15) + .85) * 3.5 * (level + 1))) + 1) * (1 + (((this.energy / 3))))))
                 this.body.color = "#666600"
             } else {
                 this.thorns = 0
@@ -1309,20 +1380,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         this.energybonus += 1
                     }
                 }
-                this.energybonus = Math.floor(this.energybonus * (1 + (((this.energy / 5)))))
+                this.energybonus = Math.floor(this.energybonus * (1 + (((this.energy / 4)))))
                 this.body.color = "#00CCFF"
             } else {
                 this.energybonus = 0
             }
             if (this.type == 6) {
                 this.cure = 1
-                this.healing = Math.ceil(((((Math.random() * .15) + .85) * 2) + Math.ceil(((Math.random() * .15) + .85) * 3 * (level + 1)) + 1) * (1 + (((this.energy / 5)))))
+                this.healing = Math.ceil(((((Math.random() * .15) + .85) * 2) + Math.ceil(((Math.random() * .15) + .85) * 3 * (level + 1)) + 1) * (1 + (((this.energy / 3)))))
                 this.body.color = "#EEEEEE"
             } else {
                 this.cure = 0
             }
             if (this.type == 7) {
-                this.ret = Math.ceil(((((Math.random() * 1) + 0)) + Math.ceil(((Math.random() * 1) + 0) * 2 * level)) * (1 + ((this.energy / 500))))
+                this.ret = Math.ceil(((((Math.random() * 1) + 0)) + Math.ceil(((Math.random() * 1) + 0) * 2 * level)) * (1 + ((this.energy / 300))))
                 this.body.color = "teal"
                 if (this.ret > this.hits) {
                     this.hits = this.ret
@@ -1331,7 +1402,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.ret = 0
             }
             if (this.type == 8) {
-                this.stun = Math.ceil(((((Math.random() * .15) + .85) * .6 * level)) * (1 + (((this.energy / 5)))))
+                this.stun = Math.ceil(((((Math.random() * .15) + .85) * .6 * level)) * (1 + (((this.energy / 3)))))
                 if (this.stun == 0) {
                     this.stun = 1
                 }
@@ -1427,6 +1498,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
         play() {
             if (this.played == 0) {
                 if (player.energy >= this.energy) {
+                    bumper.play()
+
+
                     this.played = 1
                     player.health -= this.ret
                     player.thorns += this.thorns
@@ -1444,7 +1518,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         }
                     } else {
                         for (let t = 0; t < enemies.length; t++) {
-                            enemies[t].health -=Math.max((this.hits-enemies[t].alert), 0)
+                            enemies[t].health -= Math.max((this.hits - enemies[t].alert), 0)
                         }
                     }
                     player.selected.stun += Math.max(this.stun - player.selected.thick, 0)
@@ -1765,9 +1839,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
         constructor(type = -1, level = player.level) {
 
             if (type == -1) {
-                this.type = Math.floor(Math.random() * 136)
+                this.type = Math.floor(Math.random() * 137)
                 // this.type = 99
 
+                this.name = nameswitch(this.type)
                 // if(enemies.length == 0){
                 //     this.type = 73
                 // }else if(enemies.length == 1){
@@ -2313,6 +2388,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.explodeyes = 1
                     this.alertyes = 1
                 }
+                if (this.type == 136) {
+                    this.pomaoyes = 1
+                }
                 // if(expcounter == 0){
                 //     if(level == 10){
                 //         this.type = 23
@@ -2344,9 +2422,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
             this.body = new Polygon(350, 160, 15, getRandomColor(), this.type)
-            this.health = 10 + (Math.floor(((Math.random() * .25) + .75) * this.level * 100))
+            this.health = 10 + (Math.floor(((Math.random() * .25) + .75) * this.level * 306))
             this.maxhealth = this.health
-            this.hits = (Math.floor(((Math.random() * .25) + .75) * (this.level * 4.18))) + 1   //2.7
+            this.hits = (Math.floor(((Math.random() * .25) + .75) * (this.level * 4.20))) + 1   //2.7
+
 
             this.attacked = 0
             this.alert = 0
@@ -2365,57 +2444,121 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.rampage = 0
             this.stun = 0
 
+            if(this.pomaoyes == 1){
+                this.maxhealth = (Math.ceil(this.maxhealth*1.2))
+                this.health = (Math.ceil(this.health*1.2))
+                this.hits = (Math.ceil(this.hits*1.2))
 
-            if (this.explodeyes == 1) {
+
+            if (Math.random()<.09){
                 this.explode = Math.floor(((Math.random() * .25) + .75) * (this.level + 3) * 3) + 1
             }
-            if (this.blockyes == 1) {
+            if (Math.random()<.09){
                 this.blocks = Math.floor(((Math.random() * .25) + .75) * (this.level + 2) * 2)
             }
-            if (this.thornsyes == 1) {
+            if (Math.random()<.09){
                 this.thorns = Math.floor(((Math.random() * .25) + .75) * (this.level + 1.5) * 1.4)
             }
-            if (this.healsyes == 1) {
+            if (Math.random()<.09){
                 this.heals = Math.floor(((Math.random() * .25) + .75) * (this.level + 3) * 2.3)
             }
-            if (this.venomyes == 1) {
+            if (Math.random()<.09){
                 this.venom = Math.floor(((Math.random() * .25) + .75) * (this.level + 2) * 2.15)
             }
-            if (this.enrageyes == 1) {
+            if (Math.random()<.09){
                 this.enrage = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 2.25) + 1
             }
-            if (this.bypassyes == 1) {
+            if (Math.random()<.09){
                 this.bypass = Math.floor(((Math.random() * .25) + .75) * (this.level * 3) * 2.75) + 1
             }
-            if (this.cureyes == 1) {
+            if (Math.random()<.09){
                 this.cure = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 1.65) + 1
+            }
+            if (Math.random()<.09){
+                this.betray = Math.floor(((Math.random() * .25) + .75) * (this.level + 3.75) * 2.25) + 1
+            }
+            if (Math.random()<.09){
+                this.drain = Math.floor(((Math.random() * .25) + .75) * (this.level + 3) * 5.5) + 1
+            }
+            if (Math.random()<.09){
+                this.padding = Math.floor(((Math.random() * .25) + .75) * (this.level + 3) * 2.65) + 1
+            }
+            if (Math.random()<.09){
+                this.resist = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 1.80) + 1
+            }
+            if (Math.random()<.09){
+                this.thick = Math.floor(((Math.random() * .4) + .6) * (this.level + 0.1) * .4)
+                if (this.thick == 0) {
+                    if (Math.random() > .2) {
+                        this.thick = 1
+                    }
+                }
+            }
+            if (Math.random()<.09){
+                this.rampage = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 1.8) + 1
+            }
+            if (Math.random()<.09){
+                this.alert = Math.floor(((Math.random() * .25) + .75) * (this.level + 2) * 4.4)  //should always be much higher than block or is completely redundant
+            }
+            if (Math.random()<.09){
+                this.summon = 1
+                if (Math.random() < .09) {
+                    this.hits = 0
+                }
+            }
+            }
+
+
+            if (this.explodeyes == 1) {
+                this.explode = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 10) - 1
+            }
+            if (this.blockyes == 1) {
+                this.blocks = Math.floor(((Math.random() * .25) + .75) * (this.level + 2) * 2.1)
+            }
+            if (this.thornsyes == 1) {
+                this.thorns = Math.floor(((Math.random() * .25) + .75) * (this.level + 1.5) * 1.5)
+            }
+            if (this.healsyes == 1) {
+                this.heals = Math.floor(((Math.random() * .25) + .75) * (this.level + 3) * 2.8)
+            }
+            if (this.venomyes == 1) {
+                this.venom = Math.floor(((Math.random() * .25) + .75) * (this.level + 2) * 2.4)
+            }
+            if (this.enrageyes == 1) {
+                this.enrage = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 2.5) + 1
+            }
+            if (this.bypassyes == 1) {
+                this.bypass = Math.floor(((Math.random() * .25) + .75) * (this.level * 3) * 2.9) + 1
+            }
+            if (this.cureyes == 1) {
+                this.cure = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 1.9) + 1
             }
 
             if (this.betrayyes == 1) {
-                this.betray = Math.floor(((Math.random() * .25) + .75) * (this.level + 3.75) * 2.25) + 1
+                this.betray = Math.floor(((Math.random() * .25) + .75) * (this.level + 3.75) * 2.35) + 1
             }
             if (this.drainyes == 1) {
                 this.drain = Math.floor(((Math.random() * .25) + .75) * (this.level + 3) * 5.5) + 1
             }
             if (this.paddingyes == 1) {
-                this.padding = Math.floor(((Math.random() * .25) + .75) * (this.level + 3) * 2.65) + 1
+                this.padding = Math.floor(((Math.random() * .25) + .75) * (this.level + 3) * 3.1) + 1
             }
             if (this.resistyes == 1) {
-                this.resist = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 1.80) + 1
+                this.resist = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 1.90) + 1
             }
             if (this.thickyes == 1) {
                 this.thick = Math.floor(((Math.random() * .4) + .6) * (this.level + 0.1) * .4)
-                if(this.thick == 0){
-                    if(Math.random() > .2){
+                if (this.thick == 0) {
+                    if (Math.random() > .2) {
                         this.thick = 1
                     }
                 }
             }
             if (this.rampageyes == 1) {
-                this.rampage = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 1.8) + 1
+                this.rampage = Math.floor(((Math.random() * .25) + .75) * (this.level + 1) * 2.7) + 1
             }
             if (this.alertyes == 1) {
-                this.alert = Math.floor(((Math.random() * .25) + .75) * (this.level+2) * 4.4)  //should always be much higher than block or is completely redundant
+                this.alert = Math.floor(((Math.random() * .25) + .75) * (this.level + 2) * 4.4)  //should always be much higher than block or is completely redundant
             }
             if (this.summonyes == 1) {
                 this.summon = 1
@@ -2438,61 +2581,81 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.health = this.maxhealth
             }
             this.strings.push([`${this.health}/${this.maxhealth}`, "white"])
-            this.strings.push([`dummy`, "transparent"])
+            this.strings.push([``, "transparent"])
             this.strings.push([`Hits: ${this.hits + this.enrage + this.rampage}`, "white"])
+
+
             if (this.blocks > 0) {
                 this.strings.push([`Blocks: ${this.blocks}`, "gray"])
+                blocksong.play()
             }
             if (this.thorns > 0) {
                 this.strings.push([`Thorns: ${this.thorns}`, "yellow"])
+                thornsong.play()
             }
             if (this.poison > 0) {
                 this.strings.push([`Poisoned: ${this.poison}`, "green"])
+                poisonedsong.play()
             }
             if (this.heals > 0) {
                 this.strings.push([`Heals: ${this.heals}`, "#00FF00"])
+                healsong.play()
             }
             if (this.venom > 0) {
                 this.strings.push([`Venom: ${this.venom}`, "magenta"])
+                venomsong.play()
             }
             if (this.enrage > 0) {
                 this.strings.push([`Enrage: ${this.enrage}`, "#DD2222"])
+                enragesong.play()
             }
             if (this.summon > 0) {
                 this.strings.push([`Summoner`, "#AAAA00"])
+                summonsong.play()
             }
             if (this.bypass > 0) {
                 this.strings.push([`Bypass: ${this.bypass}`, "#AAAAAA"])
+                bypasssong.play()
             }
             if (this.cure > 0) {
                 this.strings.push([`Treat: ${this.cure}`, "#FFAAAA"])
+                treatsong.play()
             }
             if (this.betray > 0) {
                 this.strings.push([`Betray: ${this.betray + this.enrage + this.rampage}`, "#FF0099"])
+                betraysong.play()
             }
             if (this.drain > 0) {
                 this.strings.push([`Drain: ${this.drain}`, "#99AAFF"])
+                drainsong.play()
             }
             if (this.padding > 0) {
                 this.strings.push([`Padded: ${this.padding}`, "#FFFFFF"])
+                paddingsong.play()
             }
             if (this.resist > 0) {
                 this.strings.push([`Resist: ${this.resist}`, "#FFAA00"])
+                resistsong.play()
             }
             if (this.stun > 0) {
                 this.strings.push([`Stunned: ${this.stun}`, "#3311FF"])
+                stunsong.play()
             }
             if (this.thick > 0) {
                 this.strings.push([`Thick: ${this.thick}`, "#33FFAA"])
+                thicksong.play()
             }
             if (this.rampage > 0) {
                 this.strings.push([`Frenzy: ${this.rampage}`, "#AA33FF"])
+                rampagesong.play()
             }
             if (this.explode > 0) {
                 this.strings.push([`Detonate: ${this.explode + this.enrage + this.rampage}`, "#FF6600"])
+                detonatesong.play()
             }
             if (this.alert > 0) {
                 this.strings.push([`Alert: ${this.alert}`, "#50AAAA"])
+                alertsong.play()
             }
         }
         animate(guy) {
@@ -2711,7 +2874,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     enemies[indexer + 1].attackstart()
                 } else {
                     for (let t = 0; t < summons.length; t++) {
-                        if (enemies.length < 16) {
+                        if (enemies.length < 12) {
                             enemies.push(summons[t])
                         }
                     }
@@ -2722,7 +2885,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
         }
-        drawImage(flip, flop, img = this.imageholder, x = this.body.body.x, y = this.body.body.y, width = 75, height = 75, deg = 0) {
+        drawImage(flip, flop, img = this.imageholder, x = this.body.body.x, y = this.body.body.y, width = 100, height = 100, deg = 0) {
 
             this.imageholder.src = `m${this.type}.png`//(srcnames(this.type) + ".svg").toLowerCase()
             canvas_context.save();
@@ -2751,7 +2914,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             canvas_context.scale(flipScale, flopScale);
 
             // Draw the image    
-            canvas_context.drawImage(this.imageholder, -37.5, -37.5, 75, 75);
+            canvas_context.drawImage(this.imageholder, -50, -50, 100, 100);
 
             canvas_context.restore();
         }
@@ -2771,7 +2934,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             this.healthbar.x = this.body.body.x - 37.5
             this.healthbarx.x = this.healthbar.x
-            this.healthbar.y = this.body.body.y + 70
+            this.healthbar.y = this.body.body.y + 80
             this.healthbarx.y = this.healthbar.y
             this.healthbar.width = Math.min((75 * (this.health / this.maxhealth)), 75)
 
@@ -2787,11 +2950,29 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             // canvas_context.font = "12px arial"
 
-            canvas_context.font = `${12+(2-(enemies.length/8))}px arial`
+            canvas_context.font = `${15 + (2 - (enemies.length / 8))}px arial`
+
+
+            if (player.selected == this) {
+
+                canvas_context.fillStyle = "white"
+
+                canvas_context.strokeStyle = "black"
+                canvas_context.lineWidth = 3
+                canvas_context.font = `${17 + (2 - (enemies.length / 8))}px arial`
+                canvas_context.strokeText(this.name, tringle.x - (getTextWidth(this.name, canvas_context.font) / 2), this.body.body.y - 76 + (1 * 18))
+                canvas_context.fillText(this.name, tringle.x - (getTextWidth(this.name, canvas_context.font) / 2), this.body.body.y - 76 + (1 * 18))
+
+                canvas_context.font = `${16 + (2 - (enemies.length / 8))}px arial`
+            }
+
             // canvas_context.fillStyle = "white"
             for (let t = 0; t < this.strings.length; t++) {
                 canvas_context.fillStyle = this.strings[t][1]
-                canvas_context.fillText(this.strings[t][0], this.body.body.x - 20, this.body.body.y + 60 + (t * 18))
+                canvas_context.strokeStyle = "black"
+                canvas_context.lineWidth = 3
+                canvas_context.strokeText(this.strings[t][0], this.body.body.x - 20, this.body.body.y + 70 + (t * 18))
+                canvas_context.fillText(this.strings[t][0], this.body.body.x - 20, this.body.body.y + 70 + (t * 18))
             }
             // canvas_context.fillText(`${this.health}/${this.maxhealth}`, this.body.body.x - 15, this.body.body.y + 60)
             // canvas_context.fillText(`Hits: ${this.hits}`, this.body.body.x - 15, this.body.body.y + 80)
@@ -2802,12 +2983,34 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.health <= 0) {
                 if (this.explode > 0) {
                     for (let t = 0; t < enemies.length; t++) {
-                        enemies[t].health -=Math.max(((this.explode + this.enrage + this.rampage) - Math.max((enemies[t].blocks - this.bypass), 0)-enemies[t].alert), 0)
+                        enemies[t].health -= Math.max(((this.explode + this.enrage + this.rampage) - Math.max((enemies[t].blocks - this.bypass), 0) - enemies[t].alert), 0)
                     }
                     player.health -= ((this.explode + this.enrage + this.rampage) - Math.max((player.block - this.bypass), 0))
 
                 }
                 enemies.splice(enemies.indexOf(this), 1)
+
+                if (enemies.length > 0) {
+                    alertsong.pause()
+                    betraysong.pause()
+                    blocksong.pause()
+                    bypasssong.pause()
+                    detonatesong.pause()
+                    drainsong.pause()
+                    enragesong.pause()
+                    paddingsong.pause()
+                    poisonedsong.pause()
+                    rampagesong.pause()
+                    resistsong.pause()
+                    stunsong.pause()
+                    summonsong.pause()
+                    thicksong.pause()
+                    thornsong.pause()
+                    treatsong.pause()
+                    venomsong.pause()
+                    healsong.pause()
+                }
+
                 if (enemies.length == 0) {
                     player.reward = 1
                     for (let t = 0; t < player.deck.active.length; t++) {
@@ -2844,17 +3047,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
         enenum = Math.floor(Math.random() * 8) + 1
         for (let t = 0; t < enenum; t++) {
             let enemy
-            if(enenum > 3){
-                enemy = new Enemy(-1, player.level*(1+(1-(enenum/8))))
-            }else{
+            if (enenum > 3) {
+                enemy = new Enemy(-1, player.level * (1 + (1 - (enenum / 8))))
+            } else {
 
-            if(enenum == 1){
-                enemy = new Enemy(-1, player.level*3)
-            }else  if(enenum == 2){
-                enemy = new Enemy(-1, player.level*2.3)
-            }else  if(enenum == 3){
-                enemy = new Enemy(-1, player.level*1.8)
-            }
+                if (enenum == 1) {
+                    enemy = new Enemy(-1, player.level * 3)
+                } else if (enenum == 2) {
+                    enemy = new Enemy(-1, player.level * 2.3)
+                } else if (enenum == 3) {
+                    enemy = new Enemy(-1, player.level * 1.8)
+                }
             }
             enemies.push(enemy)
         }
@@ -2865,6 +3068,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
         player.venom = 0
 
         player.deck.softpull()
+
+        alertsong.pause()
+        betraysong.pause()
+        blocksong.pause()
+        bypasssong.pause()
+        detonatesong.pause()
+        drainsong.pause()
+        enragesong.pause()
+        paddingsong.pause()
+        poisonedsong.pause()
+        rampagesong.pause()
+        resistsong.pause()
+        stunsong.pause()
+        summonsong.pause()
+        thicksong.pause()
+        thornsong.pause()
+        treatsong.pause()
+        venomsong.pause()
+        healsong.pause()
     }
 
     let setup_canvas = document.getElementById('canvas') //getting canvas from document
@@ -2874,8 +3096,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     let tringle = new Pointer(350, 350, "white", 10)
 
+    let notstarted = 1
+    let startbutton = new Rectangle(0, 0, 1280, 720, "white")
     player.deck.softpull()
     function main() {
+
         if (player.reward == 0) {
             if (player.health > 0) {
                 if (keysPressed['1']) {
@@ -2902,6 +3127,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
         canvas_context.clearRect(0, 0, (canvas.width), canvas.height)
+
+
+        if (player.reward == 0) {
+
+            drawbg()
+            // canvas_context.drawImage(scape1, 0,0,1280,720) 
+        }
         gamepadAPI.update()
         for (let t = 0; t < enemies.length; t++) {
             enemies[t].body.body.x = (((canvas.width - 36) / enemies.length + 1) * (t)) + (((canvas.width - 36) / (enemies.length * 2)))
@@ -2913,9 +3145,327 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 player.selected = enemies[0]
             } else {
                 tringle.x = player.selected.body.body.x
-                tringle.y = player.selected.body.body.y - 65
+                tringle.y = player.selected.body.body.y - 90
                 tringle.draw()
             }
         }
+        if(notstarted == 1){
+            startbutton.draw()
+
+            canvas_context.font = "100px arial"
+            canvas_context.fillStyle = "Black"
+            canvas_context.fillText("Click to Start", 375, 400)
+            canvas_context.fillText("Click to Start", 375, 400)
+            canvas_context.fillText("Click to Start", 375, 400)
+            canvas_context.fillText("Click to Start", 375, 400)
+            canvas_context.font = "29px arial"
+            canvas_context.fillStyle = "Black"
+            canvas_context.fillText("Music By: Lekman, Interface Layout by: ssstar, Backgrounds by upklyak and vectorpouch / Freepik", 0, 710)
+        }
+    }
+    function drawbg() {
+        if (player.image == 0) {
+            canvas_context.drawImage(scape1, player.leftdisp * (scape1.width - (1280 * 1.5)), player.topdisp * (scape1.height - (720 * 1.5)), 1280 * 1.5, 720 * 1.5, 0, 0, 1280, 720)
+        }
+        if (player.image == 1) {
+            canvas_context.drawImage(scape2, player.leftdisp * (scape2.width - (1280 * 1.5)), player.topdisp * (scape2.height - (720 * 1.5)), 1280 * 1.5, 720 * 1.5, 0, 0, 1280, 720)
+        }
+        if (player.image == 2) {
+            canvas_context.drawImage(scape3, player.leftdisp * (scape3.width - (1280 * 1.5)), player.topdisp * (scape3.height - (720 * 1.5)), 1280 * 1.5, 720 * 1.5, 0, 0, 1280, 720)
+        }
+        if (player.image == 3) {
+            canvas_context.drawImage(scape4, player.leftdisp * (scape4.width - (1280 * 1.5)), player.topdisp * (scape4.height - (720 * 1.5)), 1280 * 1.5, 720 * 1.5, 0, 0, 1280, 720)
+        }
+        if (player.image == 4) {
+            canvas_context.drawImage(scape5, player.leftdisp * (scape5.width - (1280 * 1.5)), player.topdisp * (scape5.height - (720 * 1.5)), 1280 * 1.5, 720 * 1.5, 0, 0, 1280, 720)
+        }
+    }
+
+    function nameswitch(type) {
+        switch (type) {
+            case 0:
+                return "Adenolish"
+            case 1:
+                return "Algadjin"
+            case 2:
+                return "Avokaboom"
+            case 3:
+                return "Ayateda"
+            case 4:
+                return "Baa"
+            case 5:
+                return "Banandroid"
+            case 6:
+                return "Beary"
+            case 7:
+                return "Beeurchin"
+            case 8:
+                return "Bice"
+            case 9:
+                return "Bellaja"
+            case 10:
+                return "Blanqast"
+            case 11:
+                return "Blattle"
+            case 12:
+                return "Bongu"
+            case 13:
+                return "Battlerfly"
+            case 14:
+                return "Centiclak"
+            case 15:
+                return "Cheetza"
+            case 16:
+                return "Chilldabeast"
+            case 17:
+                return "Chimpansy"
+            case 18:
+                return "Communigator"
+            case 19:
+                return "Phishuk"
+            case 20:
+                return "Cyosteroth"
+            case 21:
+                return "Rushroom"
+            case 22:
+                return "Deblobbio"
+            case 23:
+                return "Degeissdt"
+            case 24:
+                return "Dicyto"
+            case 25:
+                return "Djoper"
+            case 26:
+                return "Dothog"
+            case 27:
+                return "Doughgnat"
+            case 28:
+                return "Eggress"
+            case 29:
+                return "Elocurl"
+            case 30:
+                return "Epibazang"
+            case 31:
+                return "Errantnope"
+            case 32:
+                return "Farmot"
+            case 33:
+                return "Faedendron"
+            case 34:
+                return "Flashmer"
+            case 35:
+                return "Flyinsoup"
+            case 36:
+                return "Fwuffynumpkins"
+            case 37:
+                return "Geliphant"
+            case 38:
+                return "Threadnought"
+            case 39:
+                return "Giteriglia"
+            case 40:
+                return "Glyer"
+            case 41:
+                return "Grobhost"
+            case 42:
+                return "Gungholio"
+            case 43:
+                return "Gytanic"
+            case 44:
+                return "Halocordate"
+            case 45:
+                return "Haptozahen"
+            case 46:
+                return "Hemtan"
+            case 47:
+                return "Honigkonig"
+            case 48:
+                return "Hmun"
+            case 49:
+                return "Hykeyna"
+            case 50:
+                return "Hyuntress"
+            case 51:
+                return "Ihmpdrap"
+            case 52:
+                return "Illellonab"
+            case 53:
+                return "Indeo"
+            case 54:
+                return "Jiyou"
+            case 55:
+                return "Kachort"
+            case 56:
+                return "Knightstacean"
+            case 57:
+                return "Kohboh"
+            case 58:
+                return "Kungulp"
+            case 59:
+                return "Kunk"
+            case 60:
+                return "Levdzell"
+            case 61:
+                return "Mangoon"
+            case 62:
+                return "Manterfly"
+            case 63:
+                return "Mantidile"
+            case 64:
+                return "Meloncollie"
+            case 65:
+                return "Memeek"
+            case 66:
+                return "Minkohabod"
+            case 67:
+                return "Toximastica"
+            case 68:
+                return "Mnemont"
+            case 69:
+                return "Mondosplak"
+            case 70:
+                return "Monopteryx"
+            case 71:
+                return "Mossboss"
+            case 72:
+                return "Munegull"
+            case 73:
+                return "Sungull"
+            case 74:
+                return "Nentopode"
+            case 75:
+                return "Nhainhai"
+            case 76:
+                return "Nimnamnom"
+            case 77:
+                return "Nokoyl"
+            case 78:
+                return "Obchovy"
+            case 79:
+                return "Octgotot"
+            case 80:
+                return "Ogo"
+            case 81:
+                return "Origanimal"
+            case 82:
+                return "Osteoplang"
+            case 83:
+                return "Parafox"
+            case 84:
+                return "Pigin"
+            case 85:
+                return "Probocetus"
+            case 86:
+                return "Prostrax"
+            case 87:
+                return "Psychobath"
+            case 88:
+                return "R@tic"
+            case 89:
+                return "Reefcake"
+            case 90:
+                return "Rhischlosserous"
+            case 91:
+                return "Rivzo"
+            case 92:
+                return "Rongzeed"
+            case 93:
+                return "Runnybabbit"
+            case 94:
+                return "Rytegg"
+            case 95:
+                return "Wrongegg"
+            case 96:
+                return "Sapiosuant"
+            case 97:
+                return "Satinella"
+            case 98:
+                return "Scarbecue"
+            case 99:
+                return "Schlorkupine"
+            case 100:
+                return "Schmodozer"
+            case 101:
+                return "Schorp"
+            case 102:
+                return "Scorphibian"
+            case 103:
+                return "Slamelion"
+            case 104:
+                return "Sluggernaut"
+            case 105:
+                return "Sorba"
+            case 106:
+                return "Sortsand"
+            case 107:
+                return "Sparvae"
+            case 108:
+                return "Spikegul"
+            case 109:
+                return "Strachid"
+            case 110:
+                return "Sudakleez"
+            case 111:
+                return "Swogharnler"
+            case 112:
+                return "Tacroach"
+            case 113:
+                return "Tafantula"
+            case 114:
+                return "Takobie"
+            case 115:
+                return "Tankgolin"
+            case 116:
+                return "Toobapath"
+            case 117:
+                return "Missleaneous"
+            case 118:
+                return "Triaural"
+            case 119:
+                return "Tutewtoo"
+            case 120:
+                return "Uggnawb"
+            case 121:
+                return "Urcaria"
+            case 122:
+                return "Vamprey"
+            case 123:
+                return "Vellup"
+            case 124:
+                return "Wheeliosbop"
+            case 125:
+                return "Whumpump"
+            case 126:
+                return "Wochem"
+            case 127:
+                return "Xaltoxis"
+            case 128:
+                return "Xlitch"
+            case 129:
+                return "Yallod"
+            case 130:
+                return "Yuggle"
+            case 131:
+                return "Zaum"
+            case 132:
+                return "Zeen"
+            case 133:
+                return "Zentipede"
+            case 134:
+                return "Xrachnid"
+            case 135:
+                return "Zubgondrakter"
+            case 136:
+                return "Pomao"
+        }
+    }
+
+    function getTextWidth(text, font) {
+        // re-use canvas object for better performance
+        var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+        var context = canvas.getContext("2d");
+        context.font = font;
+        var metrics = context.measureText(text);
+        return metrics.width;
     }
 })
