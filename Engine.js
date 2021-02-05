@@ -136,6 +136,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let hypotenuse = (xdif * xdif) + (ydif * ydif)
             return Math.sqrt(hypotenuse)
         }
+        angle() {
+            return Math.atan2(this.object.y - this.target.y, this.object.x - this.target.x)
+        }
         draw() {
             let linewidthstorage = canvas_context.lineWidth
             canvas_context.strokeStyle = this.color
