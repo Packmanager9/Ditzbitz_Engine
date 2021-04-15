@@ -106,6 +106,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.color = color
             this.width = width
         }
+        angle() {
+            return Math.atan2(this.y1 - this.y2, this.x1 - this.x2)
+        }
         hypotenuse() {
             let xdif = this.x1 - this.x2
             let ydif = this.y1 - this.y2
