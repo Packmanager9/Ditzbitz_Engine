@@ -564,7 +564,43 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.anchor.move()
         }
 
+    }  
+    class SpringOP {
+        constructor(body, anchor, length, width = 3, color = body.color) {
+            this.body = body
+            this.anchor = anchor
+            this.beam = new LineOP(body, anchor, color, width)
+            this.length = length
+            this.gravity = 0
+        }
+        balance() {
+            if (this.beam.hypotenuse() < this.length) {
+                this.body.xmom += ((this.body.x - this.anchor.x) / this.length) 
+                this.body.ymom += ((this.body.y - this.anchor.y) / this.length) 
+                this.anchor.xmom -= ((this.body.x - this.anchor.x) / this.length) 
+                this.anchor.ymom -= ((this.body.y - this.anchor.y) / this.length) 
+            } else if (this.beam.hypotenuse() > this.length) {
+                this.body.xmom -= (this.body.x - this.anchor.x) / (this.length)
+                this.body.ymom -= (this.body.y - this.anchor.y) / (this.length)
+                this.anchor.xmom += (this.body.x - this.anchor.x) / (this.length)
+                this.anchor.ymom += (this.body.y - this.anchor.y) / (this.length)
+            }
+
+            let xmomentumaverage = (this.body.xmom + this.anchor.xmom) / 2
+            let ymomentumaverage = (this.body.ymom + this.anchor.ymom) / 2
+            this.body.xmom = (this.body.xmom + xmomentumaverage) / 2
+            this.body.ymom = (this.body.ymom + ymomentumaverage) / 2
+            this.anchor.xmom = (this.anchor.xmom + xmomentumaverage) / 2
+            this.anchor.ymom = (this.anchor.ymom + ymomentumaverage) / 2
+        }
+        draw() {
+            this.beam.draw()
+        }
+        move() {
+            //movement of SpringOP objects should be handled separate from their linkage, to allow for many connections, balance here with this object, move nodes independently
+        }
     }
+
     class Color {
         constructor(baseColor, red = -1, green = -1, blue = -1, alpha = 1) {
             this.hue = baseColor
@@ -803,11 +839,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     function gamepad_control(object, speed = 1) { // basic control for objects using the controler
-        console.log(gamepadAPI.axesStatus[1]*gamepadAPI.axesStatus[0])
+//         console.log(gamepadAPI.axesStatus[1]*gamepadAPI.axesStatus[0]) //debugging
         if (typeof object.body != 'undefined') {
             if(typeof (gamepadAPI.axesStatus[1]) != 'undefined'){
                 if(typeof (gamepadAPI.axesStatus[0]) != 'undefined'){
-                object.body.x += (gamepadAPI.axesStatus[2] * speed)
+                object.body.x += (gamepadAPI.axesStatus[0] * speed)
                 object.body.y += (gamepadAPI.axesStatus[1] * speed)
                 }
             }
