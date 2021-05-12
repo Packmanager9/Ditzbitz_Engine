@@ -571,7 +571,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.anchor = anchor
             this.beam = new LineOP(body, anchor, color, width)
             this.length = length
-            this.gravity = 0
         }
         balance() {
             if (this.beam.hypotenuse() < this.length) {
