@@ -1,5 +1,14 @@
 
 window.addEventListener('DOMContentLoaded', (event) => {
+
+
+    const squaretable = {} // this section of code is an optimization for use of the hypotenuse function on Line and LineOP objects
+    for(let t = 0;t<10000000;t++){
+        squaretable[`${t}`] = Math.sqrt(t)
+        if(t > 999){
+            t+=9
+        }
+    }
     const gamepadAPI = {
         controller: {},
         turbo: true,
@@ -97,6 +106,63 @@ window.addEventListener('DOMContentLoaded', (event) => {
             return (new LineOP(this, point, "transparent", 0)).hypotenuse()
         }
     }
+
+    class Vector{ // vector math and physics if you prefer this over vector components on circles
+        constructor(object = (new Point(0,0)), xmom = 0, ymom = 0){
+            this.xmom = xmom
+            this.ymom = ymom
+            this.object = object
+        }
+        isToward(point){
+            let link = new LineOP(this.object, point)
+            let dis1 = link.sqrDis()
+            let dummy = new Point(this.object.x+this.xmom, this.object.y+this.ymom)
+            let link2 = new LineOP(dummy, point)
+            let dis2 = link2.sqrDis()
+            if(dis2 < dis1){
+                return true
+            }else{
+                return false
+            }
+        }
+        rotate(angleGoal){
+            let link = new Line(this.xmom, this.ymom, 0,0)
+            let length = link.hypotenuse()
+            let x = (length * Math.cos(angleGoal))
+            let y = (length * Math.sin(angleGoal))
+            this.xmom = x
+            this.ymom = y
+        }
+        magnitude(){
+            return (new Line(this.xmom, this.ymom, 0,0)).hypotenuse()
+        }
+        normalize(size = 1){
+            let magnitude = this.magnitude()
+            this.xmom/=magnitude
+            this.ymom/=magnitude
+            this.xmom*=size
+            this.ymom*=size
+        }
+        multiply(vect){
+            let point = new Point(0,0)
+            let end = new Point(this.xmom+vect.xmom, this.ymom+vect.ymom)
+            return point.pointDistance(end)
+        }
+        add(vect){
+            return new Vector(this.object, this.xmom+vect.xmom, this.ymom+vect.ymom)
+        }
+        subtract(vect){
+            return new Vector(this.object, this.xmom-vect.xmom, this.ymom-vect.ymom)
+        }
+        divide(vect){
+            return new Vector(this.object, this.xmom/vect.xmom, this.ymom/vect.ymom) //be careful with this, I don't think this is right
+        }
+        draw(){
+            let dummy = new Point(this.object.x+this.xmom, this.object.y+this.ymom)
+            let link = new LineOP(this.object, dummy, "#FFFFFF", 1)
+            link.draw()
+        }
+    }
     class Line {
         constructor(x, y, x2, y2, color, width) {
             this.x1 = x
@@ -109,11 +175,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
         angle() {
             return Math.atan2(this.y1 - this.y2, this.x1 - this.x2)
         }
+        squareDistance() {
+            let xdif = this.x1 - this.x2
+            let ydif = this.y1 - this.y2
+            let squareDistance = (xdif * xdif) + (ydif * ydif)
+            return squareDistance
+        }
         hypotenuse() {
             let xdif = this.x1 - this.x2
             let ydif = this.y1 - this.y2
             let hypotenuse = (xdif * xdif) + (ydif * ydif)
-            return Math.sqrt(hypotenuse)
+            if(hypotenuse < 10000000-1){
+                if(hypotenuse > 1000){
+                    return squaretable[`${Math.round(10*Math.round((hypotenuse*.1)))}`]
+                }else{
+                return squaretable[`${Math.round(hypotenuse)}`]
+                }
+            }else{
+                return Math.sqrt(hypotenuse)
+            }
         }
         draw() {
             let linewidthstorage = canvas_context.lineWidth
@@ -133,11 +213,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.color = color
             this.width = width
         }
+        squareDistance() {
+            let xdif = this.object.x - this.target.x
+            let ydif = this.object.y - this.target.y
+            let squareDistance = (xdif * xdif) + (ydif * ydif)
+            return squareDistance
+        }
         hypotenuse() {
             let xdif = this.object.x - this.target.x
             let ydif = this.object.y - this.target.y
             let hypotenuse = (xdif * xdif) + (ydif * ydif)
-            return Math.sqrt(hypotenuse)
+            if(hypotenuse < 10000000-1){
+                if(hypotenuse > 1000){
+                    return squaretable[`${Math.round(10*Math.round((hypotenuse*.1)))}`]
+                }else{
+                return squaretable[`${Math.round(hypotenuse)}`]
+                }
+            }else{
+                return Math.sqrt(hypotenuse)
+            }
         }
         angle() {
             return Math.atan2(this.object.y - this.target.y, this.object.x - this.target.x)
@@ -489,6 +583,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
         constructor(shapes) {
             this.shapes = shapes
         }
+        draw() {
+            for (let t = 0; t < this.shapes.length; t++) {
+                this.shapes[t].draw()
+            }
+        }
         isPointInside(point) {
             for (let t = 0; t < this.shapes.length; t++) {
                 if (this.shapes[t].isPointInside(point)) {
@@ -505,6 +604,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             return false
         }
+        innerShape(point) {
+            for (let t = 0; t < this.shapes.length; t++) {
+                if (this.shapes[t].doesPerimeterTouch(point)) {
+                    return this.shapes[t]
+                }
+            }
+            return false
+        }
         isInsideOf(box) {
             for (let t = 0; t < this.shapes.length; t++) {
                 if (box.isPointInside(this.shapes[t])) {
@@ -513,10 +620,34 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             return false
         }
+        adjustByFromDisplacement(x,y) {
+            for (let t = 0; t < this.shapes.length; t++) {
+                if(typeof this.shapes[t].fromRatio == "number"){
+                    this.shapes[t].x+=x*this.shapes[t].fromRatio
+                    this.shapes[t].y+=y*this.shapes[t].fromRatio
+                }
+            }
+        }
+        adjustByToDisplacement(x,y) {
+            for (let t = 0; t < this.shapes.length; t++) {
+                if(typeof this.shapes[t].toRatio == "number"){
+                    this.shapes[t].x+=x*this.shapes[t].toRatio
+                    this.shapes[t].y+=y*this.shapes[t].toRatio
+                }
+            }
+        }
+        mixIn(arr){
+            for(let t = 0;t<arr.length;t++){
+                for(let k = 0;k<arr[t].shapes.length;k++){
+                    this.shapes.push(arr[t].shapes[k])
+                }
+            }
+        }
         push(object) {
             this.shapes.push(object)
         }
     }
+
     class Spring {
         constructor(x, y, radius, color, body = 0, length = 1, gravity = 0, width = 1) {
             if (body == 0) {
@@ -913,6 +1044,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let shape_array = []
             for (let t = 0; t < limit; t++) {
                 let circ = new Circle((from.x * (t / limit)) + (to.x * ((limit - t) / limit)), (from.y * (t / limit)) + (to.y * ((limit - t) / limit)), radius, "red")
+                circ.toRatio = t/limit
+                circ.fromRatio = (limit-t)/limit
                 shape_array.push(circ)
             }
             return (new Shape(shape_array))
