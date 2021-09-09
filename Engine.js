@@ -115,10 +115,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         isToward(point){
             let link = new LineOP(this.object, point)
-            let dis1 = link.sqrDis()
+            let dis1 = link.squareDistance()
             let dummy = new Point(this.object.x+this.xmom, this.object.y+this.ymom)
             let link2 = new LineOP(dummy, point)
-            let dis2 = link2.sqrDis()
+            let dis2 = link2.squareDistance()
             if(dis2 < dis1){
                 return true
             }else{
