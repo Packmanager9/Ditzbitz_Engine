@@ -1050,6 +1050,118 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             return (new Shape(shape_array))
     }
+    
+    function castBetweenPoints(from, to, granularity = 10, radius = 1) { //creates a sort of beam hitbox between two points, with a granularity (number of members over distance), with a radius defined as well
+        let limit = granularity
+        let shape_array = []
+        for (let t = 0; t < limit; t++) {
+            let circ = new Circle((from.x * (t / limit)) + (to.x * ((limit - t) / limit)), (from.y * (t / limit)) + (to.y * ((limit - t) / limit)), radius, "red")
+            circ.toRatio = t / limit
+            circ.fromRatio = (limit - t) / limit
+            shape_array.push(circ)
+        }
+        return shape_array
+    }
+
+    class Disang {
+        constructor(dis, ang) {
+            this.dis = dis
+            this.angle = ang
+        }
+    }
+
+    class BezierHitbox {
+        constructor(x, y, cx, cy, ex, ey, color = "red") { // this function takes a starting x,y, a control point x,y, and a end point x,y
+            this.color = color
+            this.x = x
+            this.y = y
+            this.cx = cx
+            this.cy = cy
+            this.ex = ex
+            this.ey = ey
+            this.metapoint = new Circle((x + cx + ex) / 3, (y + cy + ey) / 3, 3, "#FFFFFF")
+            this.granularity = 100
+            this.body = [...castBetweenPoints((new Point(this.x, this.y)), (new Point(this.ex, this.ey)), this.granularity, 0)]
+
+            let angle = (new Line(this.x, this.y, this.ex, this.ey)).angle()
+
+            this.angles = []
+            for(let t = 0;t<this.granularity;t++){
+                this.angles.push(angle)
+            }
+            for (let t = 0; t <= 1; t += 1/this.granularity) {
+                this.body.push(this.getQuadraticXY(t))
+                this.angles.push(this.getQuadraticAngle(t))
+            }
+            this.hitbox = []
+            for (let t = 0; t < this.body.length; t++) {
+                let link = new LineOP(this.body[t], this.metapoint)
+                let disang = new Disang(link.hypotenuse(), link.angle() + (Math.PI * 2))
+                this.hitbox.push(disang)
+            }
+            this.constructed = 1
+        }
+        isPointInside(point) {
+            let link = new LineOP(point, this.metapoint)
+            let angle = (link.angle() + (Math.PI * 2))
+            let dis = link.hypotenuse()
+            for (let t = 1; t < this.hitbox.length; t++) {
+                if (Math.abs(this.hitbox[t].angle - this.hitbox[t - 1].angle) > 1) {
+                    continue
+                }
+                if (angle.between(this.hitbox[t].angle, this.hitbox[t - 1].angle)) {
+                    if (dis < (this.hitbox[t].dis + this.hitbox[t - 1].dis) * .5) {
+                        return true
+                    }
+                }
+            }
+            return false
+        }
+        doesPerimeterTouch(point) {
+            let link = new LineOP(point, this.metapoint)
+            let angle = (link.angle() + (Math.PI * 2))
+            let dis = link.hypotenuse()
+            for (let t = 1; t < this.hitbox.length; t++) {
+                if (Math.abs(this.hitbox[t].angle - this.hitbox[t - 1].angle) > 1) {
+                    continue
+                }
+                if (angle.between(this.hitbox[t].angle, this.hitbox[t - 1].angle)) {
+                    if (dis < ((this.hitbox[t].dis + this.hitbox[t - 1].dis) * .5) + point.radius) {
+                        return this.angles[t]
+                    }
+                }
+            }
+            return false
+        }
+        draw() {
+            this.metapoint.draw()
+           let tline = new Line(this.x, this.y, this.ex, this.ey, this.color, 3)
+            tline.draw()
+            canvas_context.beginPath()
+            this.median = new Point((this.x + this.ex) * .5, (this.y + this.ey) * .5)
+            let angle = (new LineOP(this.median, this.metapoint)).angle()
+            let dis = (new LineOP(this.median, this.metapoint)).hypotenuse()
+            canvas_context.bezierCurveTo(this.x, this.y, this.cx - (Math.cos(angle) * dis * .38), this.cy - (Math.sin(angle) * dis * .38), this.ex, this.ey)
+
+            canvas_context.fillStyle = this.color
+            canvas_context.strokeStyle = this.color
+            canvas_context.lineWidth = 3
+            canvas_context.stroke()
+        }
+        getQuadraticXY(t) {
+            return new Point((((1 - t) * (1 - t)) * this.x) + (2 * (1 - t) * t * this.cx) + (t * t * this.ex), (((1 - t) * (1 - t)) * this.y) + (2 * (1 - t) * t * this.cy) + (t * t * this.ey))
+        }
+        getQuadraticAngle(t) {
+            var dx = 2 * (1 - t) * (this.cx - this.x) + 2 * t * (this.ex - this.cx);
+            var dy = 2 * (1 - t) * (this.cy - this.y) + 2 * t * (this.ey - this.cy);
+            return -Math.atan2(dx, dy) + 0.5 * Math.PI;
+        }
+    }
+    Number.prototype.between = function (a, b, inclusive) {
+        var min = Math.min(a, b),
+            max = Math.max(a, b);
+        return inclusive ? this >= min && this <= max : this > min && this < max;
+    }
 
     let setup_canvas = document.getElementById('canvas') //getting canvas from document
 
