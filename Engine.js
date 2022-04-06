@@ -1,12 +1,105 @@
 
 window.addEventListener('DOMContentLoaded', (event) => {
-
-
     const squaretable = {} // this section of code is an optimization for use of the hypotenuse function on Line and LineOP objects
-    for(let t = 0;t<10000000;t++){
+    for (let t = 0; t < 10000000; t++) {
         squaretable[`${t}`] = Math.sqrt(t)
-        if(t > 999){
-            t+=9
+        if (t > 999) {
+            t += 9
+        }
+    }
+    let video_recorder 
+    let recording = 0
+    function CanvasCaptureToWEBM(canvas, bitrate) {
+        // the video_recorder is set to  '= new CanvasCaptureToWEBM(canvas, 4500000);' in the setup, 
+        // it uses the same canvas as the rest of the file.
+        // to start a recording call .record() on video_recorder
+        /*
+        for example, 
+        if(keysPressed['-'] && recording == 0){
+            recording = 1
+            video_recorder.record()
+        }
+        if(keysPressed['='] && recording == 1){
+            recording = 0
+            video_recorder.stop()
+            video_recorder.download('File Name As A String.webm')
+        }
+        */
+        this.record = Record
+        this.stop = Stop
+        this.download = saveToDownloads
+        let blobCaptures = []
+        let outputFormat = {}
+        let recorder = {}
+        let canvasInput = canvas.captureStream()
+        if (typeof canvasInput == undefined || !canvasInput) {
+            return
+        }
+        const video = document.createElement('video')
+        video.style.display = 'none'
+
+        function Record() {
+            let formats = [
+                'video/vp8',
+                "video/webm",
+                'video/webm,codecs=vp9',
+                "video/webm\;codecs=vp8",
+                "video/webm\;codecs=daala",
+                "video/webm\;codecs=h264",
+                "video/mpeg"
+            ];
+
+            for (let t = 0;t<formats.length;t++) {
+                if (MediaRecorder.isTypeSupported(formats[t])) {
+                    outputFormat = formats[t]
+                    break
+                }
+            }
+            if (typeof outputFormat != "string") {
+                return
+            }else{
+                let videoSettings = {
+                    mimeType: outputFormat,
+                    videoBitsPerSecond: bitrate || 2000000 // 2Mbps
+                };
+                blobCaptures = []
+                try {
+                    recorder = new MediaRecorder(canvasInput, videoSettings)
+                } catch (error) {
+                    return;
+                }
+                recorder.onstop = handleStop
+                recorder.ondataavailable = handleAvailableData
+                recorder.start(100)
+            } 
+        }
+        function handleAvailableData(event) {
+            if (event.data && event.data.size > 0) {
+                blobCaptures.push(event.data)
+            }
+        }
+        function handleStop() {
+            const superBuffer = new Blob(blobCaptures, { type: outputFormat })
+            video.src = window.URL.createObjectURL(superBuffer)
+        }
+        function Stop() {
+            recorder.stop()
+            video.controls = true
+        }
+        function saveToDownloads(input) { // specifying a file name for the output
+            const name = input || 'video_out.webm'
+            const blob = new Blob(blobCaptures, { type: outputFormat })
+            const url = window.URL.createObjectURL(blob)
+            const storageElement = document.createElement('a')
+            storageElement.style.display = 'none'
+            storageElement.href = url
+            storageElement.download = name
+            document.body.appendChild(storageElement)
+            storageElement.click()
+            setTimeout(() => {
+                document.body.removeChild(storageElement)
+                window.URL.revokeObjectURL(url)
+            }, 100)
         }
     }
     const gamepadAPI = {
@@ -107,58 +200,58 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    class Vector{ // vector math and physics if you prefer this over vector components on circles
-        constructor(object = (new Point(0,0)), xmom = 0, ymom = 0){
+    class Vector { // vector math and physics if you prefer this over vector components on circles
+        constructor(object = (new Point(0, 0)), xmom = 0, ymom = 0) {
             this.xmom = xmom
             this.ymom = ymom
             this.object = object
         }
-        isToward(point){
+        isToward(point) {
             let link = new LineOP(this.object, point)
             let dis1 = link.squareDistance()
-            let dummy = new Point(this.object.x+this.xmom, this.object.y+this.ymom)
+            let dummy = new Point(this.object.x + this.xmom, this.object.y + this.ymom)
             let link2 = new LineOP(dummy, point)
             let dis2 = link2.squareDistance()
-            if(dis2 < dis1){
+            if (dis2 < dis1) {
                 return true
-            }else{
+            } else {
                 return false
             }
         }
-        rotate(angleGoal){
-            let link = new Line(this.xmom, this.ymom, 0,0)
+        rotate(angleGoal) {
+            let link = new Line(this.xmom, this.ymom, 0, 0)
             let length = link.hypotenuse()
             let x = (length * Math.cos(angleGoal))
             let y = (length * Math.sin(angleGoal))
             this.xmom = x
             this.ymom = y
         }
-        magnitude(){
-            return (new Line(this.xmom, this.ymom, 0,0)).hypotenuse()
+        magnitude() {
+            return (new Line(this.xmom, this.ymom, 0, 0)).hypotenuse()
         }
-        normalize(size = 1){
+        normalize(size = 1) {
             let magnitude = this.magnitude()
-            this.xmom/=magnitude
-            this.ymom/=magnitude
-            this.xmom*=size
-            this.ymom*=size
+            this.xmom /= magnitude
+            this.ymom /= magnitude
+            this.xmom *= size
+            this.ymom *= size
         }
-        multiply(vect){
-            let point = new Point(0,0)
-            let end = new Point(this.xmom+vect.xmom, this.ymom+vect.ymom)
+        multiply(vect) {
+            let point = new Point(0, 0)
+            let end = new Point(this.xmom + vect.xmom, this.ymom + vect.ymom)
             return point.pointDistance(end)
         }
-        add(vect){
-            return new Vector(this.object, this.xmom+vect.xmom, this.ymom+vect.ymom)
+        add(vect) {
+            return new Vector(this.object, this.xmom + vect.xmom, this.ymom + vect.ymom)
         }
-        subtract(vect){
-            return new Vector(this.object, this.xmom-vect.xmom, this.ymom-vect.ymom)
+        subtract(vect) {
+            return new Vector(this.object, this.xmom - vect.xmom, this.ymom - vect.ymom)
         }
-        divide(vect){
-            return new Vector(this.object, this.xmom/vect.xmom, this.ymom/vect.ymom) //be careful with this, I don't think this is right
+        divide(vect) {
+            return new Vector(this.object, this.xmom / vect.xmom, this.ymom / vect.ymom) //be careful with this, I don't think this is right
         }
-        draw(){
-            let dummy = new Point(this.object.x+this.xmom, this.object.y+this.ymom)
+        draw() {
+            let dummy = new Point(this.object.x + this.xmom, this.object.y + this.ymom)
             let link = new LineOP(this.object, dummy, "#FFFFFF", 1)
             link.draw()
         }
@@ -185,13 +278,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let xdif = this.x1 - this.x2
             let ydif = this.y1 - this.y2
             let hypotenuse = (xdif * xdif) + (ydif * ydif)
-            if(hypotenuse < 10000000-1){
-                if(hypotenuse > 1000){
-                    return squaretable[`${Math.round(10*Math.round((hypotenuse*.1)))}`]
-                }else{
-                return squaretable[`${Math.round(hypotenuse)}`]
+            if (hypotenuse < 10000000 - 1) {
+                if (hypotenuse > 1000) {
+                    return squaretable[`${Math.round(10 * Math.round((hypotenuse * .1)))}`]
+                } else {
+                    return squaretable[`${Math.round(hypotenuse)}`]
                 }
-            }else{
+            } else {
                 return Math.sqrt(hypotenuse)
             }
         }
@@ -223,13 +316,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let xdif = this.object.x - this.target.x
             let ydif = this.object.y - this.target.y
             let hypotenuse = (xdif * xdif) + (ydif * ydif)
-            if(hypotenuse < 10000000-1){
-                if(hypotenuse > 1000){
-                    return squaretable[`${Math.round(10*Math.round((hypotenuse*.1)))}`]
-                }else{
-                return squaretable[`${Math.round(hypotenuse)}`]
+            if (hypotenuse < 10000000 - 1) {
+                if (hypotenuse > 1000) {
+                    return squaretable[`${Math.round(10 * Math.round((hypotenuse * .1)))}`]
+                } else {
+                    return squaretable[`${Math.round(hypotenuse)}`]
                 }
-            }else{
+            } else {
                 return Math.sqrt(hypotenuse)
             }
         }
@@ -620,25 +713,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             return false
         }
-        adjustByFromDisplacement(x,y) {
+        adjustByFromDisplacement(x, y) {
             for (let t = 0; t < this.shapes.length; t++) {
-                if(typeof this.shapes[t].fromRatio == "number"){
-                    this.shapes[t].x+=x*this.shapes[t].fromRatio
-                    this.shapes[t].y+=y*this.shapes[t].fromRatio
+                if (typeof this.shapes[t].fromRatio == "number") {
+                    this.shapes[t].x += x * this.shapes[t].fromRatio
+                    this.shapes[t].y += y * this.shapes[t].fromRatio
                 }
             }
         }
-        adjustByToDisplacement(x,y) {
+        adjustByToDisplacement(x, y) {
             for (let t = 0; t < this.shapes.length; t++) {
-                if(typeof this.shapes[t].toRatio == "number"){
-                    this.shapes[t].x+=x*this.shapes[t].toRatio
-                    this.shapes[t].y+=y*this.shapes[t].toRatio
+                if (typeof this.shapes[t].toRatio == "number") {
+                    this.shapes[t].x += x * this.shapes[t].toRatio
+                    this.shapes[t].y += y * this.shapes[t].toRatio
                 }
             }
         }
-        mixIn(arr){
-            for(let t = 0;t<arr.length;t++){
-                for(let k = 0;k<arr[t].shapes.length;k++){
+        mixIn(arr) {
+            for (let t = 0; t < arr.length; t++) {
+                for (let k = 0; k < arr[t].shapes.length; k++) {
                     this.shapes.push(arr[t].shapes[k])
                 }
             }
@@ -695,7 +788,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.anchor.move()
         }
 
-    }  
+    }
     class SpringOP {
         constructor(body, anchor, length, width = 3, color = body.color) {
             this.body = body
@@ -705,10 +798,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         balance() {
             if (this.beam.hypotenuse() < this.length) {
-                this.body.xmom += ((this.body.x - this.anchor.x) / this.length) 
-                this.body.ymom += ((this.body.y - this.anchor.y) / this.length) 
-                this.anchor.xmom -= ((this.body.x - this.anchor.x) / this.length) 
-                this.anchor.ymom -= ((this.body.y - this.anchor.y) / this.length) 
+                this.body.xmom += ((this.body.x - this.anchor.x) / this.length)
+                this.body.ymom += ((this.body.y - this.anchor.y) / this.length)
+                this.anchor.xmom -= ((this.body.x - this.anchor.x) / this.length)
+                this.anchor.ymom -= ((this.body.y - this.anchor.y) / this.length)
             } else if (this.beam.hypotenuse() > this.length) {
                 this.body.xmom -= (this.body.x - this.anchor.x) / (this.length)
                 this.body.ymom -= (this.body.y - this.anchor.y) / (this.length)
@@ -935,6 +1028,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
     function setUp(canvas_pass, style = "#000000") {
         canvas = canvas_pass
+        video_recorder = new CanvasCaptureToWEBM(canvas, 4500000);
         canvas_context = canvas.getContext('2d');
         canvas.style.background = style
         window.setInterval(function () {
@@ -969,19 +1063,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     function gamepad_control(object, speed = 1) { // basic control for objects using the controler
-//         console.log(gamepadAPI.axesStatus[1]*gamepadAPI.axesStatus[0]) //debugging
+        //         console.log(gamepadAPI.axesStatus[1]*gamepadAPI.axesStatus[0]) //debugging
         if (typeof object.body != 'undefined') {
-            if(typeof (gamepadAPI.axesStatus[1]) != 'undefined'){
-                if(typeof (gamepadAPI.axesStatus[0]) != 'undefined'){
-                object.body.x += (gamepadAPI.axesStatus[0] * speed)
-                object.body.y += (gamepadAPI.axesStatus[1] * speed)
+            if (typeof (gamepadAPI.axesStatus[1]) != 'undefined') {
+                if (typeof (gamepadAPI.axesStatus[0]) != 'undefined') {
+                    object.body.x += (gamepadAPI.axesStatus[0] * speed)
+                    object.body.y += (gamepadAPI.axesStatus[1] * speed)
                 }
             }
         } else if (typeof object != 'undefined') {
-            if(typeof (gamepadAPI.axesStatus[1]) != 'undefined'){
-                if(typeof (gamepadAPI.axesStatus[0]) != 'undefined'){
-                object.x += (gamepadAPI.axesStatus[0] * speed)
-                object.y += (gamepadAPI.axesStatus[1] * speed)
+            if (typeof (gamepadAPI.axesStatus[1]) != 'undefined') {
+                if (typeof (gamepadAPI.axesStatus[0]) != 'undefined') {
+                    object.x += (gamepadAPI.axesStatus[0] * speed)
+                    object.y += (gamepadAPI.axesStatus[1] * speed)
                 }
             }
         }
@@ -1040,17 +1134,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
         return color;
     }
     function castBetween(from, to, granularity = 10, radius = 1) { //creates a sort of beam hitbox between two points, with a granularity (number of members over distance), with a radius defined as well
-            let limit = granularity
-            let shape_array = []
-            for (let t = 0; t < limit; t++) {
-                let circ = new Circle((from.x * (t / limit)) + (to.x * ((limit - t) / limit)), (from.y * (t / limit)) + (to.y * ((limit - t) / limit)), radius, "red")
-                circ.toRatio = t/limit
-                circ.fromRatio = (limit-t)/limit
-                shape_array.push(circ)
-            }
-            return (new Shape(shape_array))
+        let limit = granularity
+        let shape_array = []
+        for (let t = 0; t < limit; t++) {
+            let circ = new Circle((from.x * (t / limit)) + (to.x * ((limit - t) / limit)), (from.y * (t / limit)) + (to.y * ((limit - t) / limit)), radius, "red")
+            circ.toRatio = t / limit
+            circ.fromRatio = (limit - t) / limit
+            shape_array.push(circ)
+        }
+        return (new Shape(shape_array))
     }
-    
+
     function castBetweenPoints(from, to, granularity = 10, radius = 1) { //creates a sort of beam hitbox between two points, with a granularity (number of members over distance), with a radius defined as well
         let limit = granularity
         let shape_array = []
@@ -1086,10 +1180,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let angle = (new Line(this.x, this.y, this.ex, this.ey)).angle()
 
             this.angles = []
-            for(let t = 0;t<this.granularity;t++){
+            for (let t = 0; t < this.granularity; t++) {
                 this.angles.push(angle)
             }
-            for (let t = 0; t <= 1; t += 1/this.granularity) {
+            for (let t = 0; t <= 1; t += 1 / this.granularity) {
                 this.body.push(this.getQuadraticXY(t))
                 this.angles.push(this.getQuadraticAngle(t))
             }
@@ -1135,7 +1229,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         draw() {
             this.metapoint.draw()
-           let tline = new Line(this.x, this.y, this.ex, this.ey, this.color, 3)
+            let tline = new Line(this.x, this.y, this.ex, this.ey, this.color, 3)
             tline.draw()
             canvas_context.beginPath()
             this.median = new Point((this.x + this.ex) * .5, (this.y + this.ey) * .5)
@@ -1169,11 +1263,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     // object instantiation and creation happens here 
 
-
-
     function main() {
         canvas_context.clearRect(0, 0, canvas.width, canvas.height)  // refreshes the image
         gamepadAPI.update() //checks for button presses/stick movement on the connected controller)
         // game code goes here
     }
+
 })
